@@ -32,6 +32,8 @@ public class CourseSchedule {
     // 로직 상에서 양쪽에 값을 세팅해주기 위함
     public void setCourse(Course course){
         this.course = course;
-        course.getSchedules().add(this);
+        if (!course.getSchedules().contains(this)) {
+            course.getSchedules().add(this);
+        }
     }
 }

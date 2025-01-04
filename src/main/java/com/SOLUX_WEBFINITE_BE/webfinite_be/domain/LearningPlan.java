@@ -12,7 +12,7 @@ public class LearningPlan {
     private Long id;
 
     @Column(nullable = false)
-    private Long week;
+    private int week;
 
     @Column(name = "plan_title", nullable = false)
     private String title;
@@ -28,6 +28,8 @@ public class LearningPlan {
     // 로직 상에서 양쪽에 값을 세팅해주기 위함
     public void setCourse(Course course){
         this.course = course;
-        course.getPlans().add(this);
+        if (!course.getPlans().contains(this)) {
+            course.getPlans().add(this);
+        }
     }
 }
