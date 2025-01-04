@@ -51,7 +51,9 @@ public class Course {
     // 로직 상에서 양쪽에 값을 세팅해주기 위함
     public void setUser(User user){
         this.user = user;
-        user.getCourses().add(this);
+        if (!user.getCourses().contains(this)) { // 중복 추가 방지
+            user.getCourses().add(this);
+        }
     }
 
     public void setPrompt(Prompt prompt){

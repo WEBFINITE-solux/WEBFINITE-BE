@@ -32,6 +32,8 @@ public class CourseFile {
     // 로직 상에서 양쪽에 값을 세팅해주기 위함
     public void setCourse(Course course){
         this.course = course;
-        course.getFiles().add(this);
+        if (!course.getFiles().contains(this)) {
+            course.getFiles().add(this);
+        }
     }
 }
