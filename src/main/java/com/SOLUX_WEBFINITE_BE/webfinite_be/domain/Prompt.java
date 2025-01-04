@@ -20,10 +20,10 @@ public class Prompt {
     private LocalDate endDate;
 
     @Column(name = "start_unit", nullable = false)
-    private LocalDate startUnit;
+    private String startUnit;
 
     @Column(name = "end_unit", nullable = false)
-    private LocalDate endUnit;
+    private String endUnit;
 
     @Column(name = "prompt_description", columnDefinition = "TEXT")
     private String description;
