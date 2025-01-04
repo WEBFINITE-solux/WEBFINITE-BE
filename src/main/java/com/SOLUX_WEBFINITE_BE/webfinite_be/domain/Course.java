@@ -35,15 +35,26 @@ public class Course {
     @JoinColumn(name="user_id")
     private User user;
 
-    @OneToMany(mappedBy = "course")
+    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL)
     private List<CourseSchedule> schedules = new ArrayList<>();
 
-    @OneToMany(mappedBy = "course")
+    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL)
     private List<LearningPlan> plans = new ArrayList<>();
 
-    @OneToMany(mappedBy = "course")
+    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL)
     private List<CourseFile> files = new ArrayList<>();
 
-    @OneToOne(mappedBy = "course",fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "course",fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Prompt prompt;
+
+    // ==== 연관 관계 메서드 ====
+    // 로직 상에서 양쪽에 값을 세팅해주기 위함
+    public void setUser(User user){
+        this.user = user;
+        user.getCourses().add(this);
+    }
+
+    public void setPrompt(Prompt prompt){
+        this.prompt = prompt;
+    }
 }
