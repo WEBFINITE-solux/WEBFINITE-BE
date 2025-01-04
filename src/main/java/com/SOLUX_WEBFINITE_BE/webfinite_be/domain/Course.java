@@ -28,6 +28,9 @@ public class Course {
     @Column(nullable = false)
     private int semester;
 
+    @Column(nullable = false)
+    private String color;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="user_id")
     private User user;
