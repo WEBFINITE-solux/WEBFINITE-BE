@@ -1,14 +1,14 @@
 package com.SOLUX_WEBFINITE_BE.webfinite_be.domain;
 
 import jakarta.persistence.*;
-import lombok.Getter;
+import lombok.*;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Getter
+@Getter @Setter // Setter 없어도 괜찮은 로직 찾으면 바꾸기
 public class Course {
 
     @Id
@@ -56,7 +56,30 @@ public class Course {
         }
     }
 
+    public void addCourseSchedule(CourseSchedule schedule) {
+        schedules.add(schedule);
+        schedule.setCourse(this);
+
+    }
+
     public void setPrompt(Prompt prompt){
         this.prompt = prompt;
+    }
+
+    // ==== 생성 메서드 ====
+    public static Course createCourse(User user, String title, LocalDate period, int year, int semester, String color, List<CourseSchedule> schedules){
+        Course course = new Course();
+        course.setUser(user);
+        course.setTitle(title);
+        course.setPeriod(period);
+        course.setYear(year);
+        course.setSemester(semester);
+        course.setColor(color);
+
+        for (CourseSchedule schedule : schedules){
+            course.addCourseSchedule(schedule);
+        }
+
+        return course;
     }
 }
