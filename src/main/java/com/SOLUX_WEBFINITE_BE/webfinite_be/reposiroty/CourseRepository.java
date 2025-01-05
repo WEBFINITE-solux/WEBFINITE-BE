@@ -20,9 +20,9 @@ public class CourseRepository {
     }
 
     // 강의 조회
-    /*public Course findOne(Long id){
+    public Course findOne(Long id){
         return em.find(Course.class, id);
-    }*/
+    }
 
     // 강의 리스트 조회
     /*public List<Course> findThisSemester(Long id, int year, int semester){
