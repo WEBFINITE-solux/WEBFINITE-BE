@@ -46,26 +46,16 @@ public class CourseServiceTest {
 
         List<CourseSchedule> schedules = new ArrayList<>();
 
-        CourseSchedule schedule1 = new CourseSchedule();
-        schedule1.setDay("MON");
-        schedule1.setLocation("명신관 702호");
-        schedule1.setStartTime(LocalTime.of(10, 30));
-        schedule1.setEndTime(LocalTime.of(11, 45));
-        schedules.add(schedule1);
+        CourseSchedule schedule1 = createSchedule("MON", "명신관 702호", LocalTime.of(10, 30), LocalTime.of(11, 45));
 
-        CourseSchedule schedule2 = new CourseSchedule();
-        schedule2.setDay("WED");
-        schedule2.setLocation("명신관 702호");
-        schedule2.setStartTime(LocalTime.of(10, 30));
-        schedule2.setEndTime(LocalTime.of(11, 45));
-        schedules.add(schedule2);
+        CourseSchedule schedule2 = createSchedule("WED", "명신관 702호", LocalTime.of(10, 30), LocalTime.of(11, 45));
 
         // when
         Long saveId = courseService.saveCourse(user.getId(), "테스트강의", LocalDate.of(2025, 2, 10),2025,1,"FFFFFF", schedules);
 
 
         // then
-        assertEquals(saveId, courseRepository.findOne(saveId).getId());
+        assertEquals(saveId, courseRepository.findOne(saveId).get().getId());
     }
 
     @Test(expected = IllegalStateException.class)
@@ -76,12 +66,7 @@ public class CourseServiceTest {
 
         List<CourseSchedule> schedules = new ArrayList<>();
 
-        CourseSchedule schedule1 = new CourseSchedule();
-        schedule1.setDay("MON");
-        schedule1.setLocation("명신관 702호");
-        schedule1.setStartTime(LocalTime.of(10, 30));
-        schedule1.setEndTime(LocalTime.of(9, 45));
-        schedules.add(schedule1);
+        CourseSchedule schedule1 = createSchedule("MON", "명신관 702호", LocalTime.of(10, 30), LocalTime.of(9, 45));
 
         // when
         Long saveId = courseService.saveCourse(user.getId(), "테스트강의", LocalDate.of(2025, 2, 10),2025,1,"FFFFFF", schedules);
@@ -100,21 +85,11 @@ public class CourseServiceTest {
 
         List<CourseSchedule> schedules = new ArrayList<>();
 
-        CourseSchedule schedule1 = new CourseSchedule();
-        schedule1.setDay("MON");
-        schedule1.setLocation("명신관 702호");
-        schedule1.setStartTime(LocalTime.of(10, 30));
-        schedule1.setEndTime(LocalTime.of(11, 45));
-        schedules.add(schedule1);
+        CourseSchedule schedule1 = createSchedule("MON", "명신관 702호", LocalTime.of(10, 30), LocalTime.of(11, 45));
 
         List<CourseSchedule> schedules2 = new ArrayList<>();
 
-        CourseSchedule schedule2 = new CourseSchedule();
-        schedule2.setDay("MON");
-        schedule2.setLocation("명신관 702호");
-        schedule2.setStartTime(LocalTime.of(11, 40));
-        schedule2.setEndTime(LocalTime.of(12, 30));
-        schedules2.add(schedule2);
+        CourseSchedule schedule2 = createSchedule("MON", "명신관 702호", LocalTime.of(10, 30), LocalTime.of(11, 45));
 
         // when
         courseService.saveCourse(user1.getId(), "테스트강의1", LocalDate.of(2025, 2, 10),2025,1,"FFFFFF", schedules);
@@ -122,5 +97,14 @@ public class CourseServiceTest {
 
         // then
         fail("예외가 발생해야 한다.");
+    }
+
+    private CourseSchedule createSchedule(String day, String location, LocalTime startTime, LocalTime endTime){
+        CourseSchedule schedule = new CourseSchedule();
+        schedule.setDay(day);
+        schedule.setLocation(location);
+        schedule.setStartTime(startTime);
+        schedule.setEndTime(endTime);
+        return schedule;
     }
 }
