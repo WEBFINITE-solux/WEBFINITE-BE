@@ -10,17 +10,17 @@ import org.springframework.http.HttpStatus;
 @Getter
 public class ErrorResponse {
     private final String message;  // 에러 메시지
-    private final int errorCode;   // HTTP 상태 코드
+    private final int status;   // HTTP 상태 코드
     private final String error;    // 에러명 (ErrorCode 이름)
 
     public ErrorResponse(ErrorCode errorCode) {
-        this.errorCode = errorCode.getHttpStatus().value();
+        this.status = errorCode.getHttpStatus().value();
         this.error = errorCode.name();
         this.message = errorCode.getMessage();
     }
 
     public ErrorResponse(HttpStatus httpStatus, String error, String message) {
-        this.errorCode = httpStatus.value();
+        this.status = httpStatus.value();
         this.error = error;
         this.message = message;
     }
