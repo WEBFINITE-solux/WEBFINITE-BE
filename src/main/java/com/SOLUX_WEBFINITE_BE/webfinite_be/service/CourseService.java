@@ -3,6 +3,7 @@ package com.SOLUX_WEBFINITE_BE.webfinite_be.service;
 import com.SOLUX_WEBFINITE_BE.webfinite_be.domain.Course;
 import com.SOLUX_WEBFINITE_BE.webfinite_be.domain.CourseSchedule;
 import com.SOLUX_WEBFINITE_BE.webfinite_be.domain.User;
+import com.SOLUX_WEBFINITE_BE.webfinite_be.exception.UserNotFoundException;
 import com.SOLUX_WEBFINITE_BE.webfinite_be.reposiroty.CourseRepository;
 import com.SOLUX_WEBFINITE_BE.webfinite_be.reposiroty.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +24,8 @@ public class CourseService {
     @Transactional
     public Long saveCourse(Long id, String title, LocalDate period, int year, int semester, String color, List<CourseSchedule> schedules){
         // 임시로 작성한 UserRepository 사용, 이후 UserRepository에서 꺼내오도록 수정 필요
-        User user = userRepository.findOne(id);
+        User user = userRepository.findOne(id)
+                .orElseThrow(() -> new UserNotFoundException());
 
         // 시간대 유효성 검증
         validateSchedule(schedules);
