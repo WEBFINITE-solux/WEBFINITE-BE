@@ -31,13 +31,22 @@ public class CourseService {
         validateSchedule(schedules);
 
         // 시간대 중복 체크
-        validateScheduleConflict(user.getId(), schedules);
+        validateScheduleConflict(user.getId(), schedules, year, semester);
 
 
         Course course = Course.createCourse(user, title, period, year, semester, color, schedules);
 
         courseRepository.save(course);
         return course.getId();
+    }
+
+    // 강의 목록 조회(시간X)
+    public List<Course> findListThisSemester(Long id, int year, int semester){
+        // 임시로 작성한 UserRepository 사용, 이후 UserRepository에서 꺼내오도록 수정 필요
+        User user = userRepository.findOne(id)
+                .orElseThrow(() -> new UserNotFoundException());
+
+        return courseRepository.findThisSemester(user.getId(), year, semester);
     }
 
     private void validateSchedule(List<CourseSchedule> schedules) {
@@ -49,8 +58,8 @@ public class CourseService {
     }
 
     // 시간대 중복 체크
-    private void validateScheduleConflict(Long userId, List<CourseSchedule> newSchedules){
-        List<CourseSchedule> existingSchedules = courseRepository.findScheduleByUserId(userId);
+    private void validateScheduleConflict(Long userId, List<CourseSchedule> newSchedules, int year, int semester) {
+        List<CourseSchedule> existingSchedules = courseRepository.findScheduleByUserId(userId, year, semester);
 
         for(CourseSchedule existingSchedule : existingSchedules){
             for(CourseSchedule newSchedule : newSchedules){
