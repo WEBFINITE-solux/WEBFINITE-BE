@@ -1,5 +1,6 @@
 package com.SOLUX_WEBFINITE_BE.webfinite_be.controller;
 
+import com.SOLUX_WEBFINITE_BE.webfinite_be.domain.Course;
 import com.SOLUX_WEBFINITE_BE.webfinite_be.domain.CourseSchedule;
 import com.SOLUX_WEBFINITE_BE.webfinite_be.domain.Day;
 import com.SOLUX_WEBFINITE_BE.webfinite_be.service.CourseService;
@@ -20,8 +21,16 @@ import java.util.stream.Collectors;
 public class CourseController {
 
     private final CourseService courseService;
-    @PostMapping("/{userId}")
-    public createCourseResponse saveCourse(@PathVariable Long userId, @RequestBody @Valid CourseController.createCourseRequest request){
+
+    @GetMapping("/{userId}")
+    public CourseListResponse courseList(@PathVariable("userId") Long id, @RequestBody @Valid CourseListRequest request){
+        List<Course> courses = courseService.findListThisSemester(id, request.getYear(), request.getSemester());
+        return new CourseListResponse(courses);
+    }
+
+
+    @PostMapping("/{userId}/new")
+    public createCourseResponse saveCourse(@PathVariable("userId") Long userId, @RequestBody @Valid createCourseRequest request){
 
         Long courseId = courseService.saveCourse(userId, request.getTitle(), request.getPeriod(), request.getYear(), request.getSemester(), request.getColor(), request.toCourseSchedule());
         return new createCourseResponse(courseId);
@@ -61,5 +70,32 @@ public class CourseController {
             }).collect(Collectors.toList());
             return schedules;
         }
+    }
+
+    @Data
+    static class CourseListResponse{
+        private List<CourseListDTO> courses;
+
+        public CourseListResponse(List<Course> courses){
+            this.courses = courses.stream()
+                    .map(c -> new CourseListDTO(c.getId(), c.getTitle(), c.getPeriod()))
+                    .collect(Collectors.toList());
+        }
+    }
+
+    @Data
+    @Getter
+    @AllArgsConstructor
+    static class CourseListRequest{
+        private int year;
+        private int semester;
+    }
+
+    @Data
+    @AllArgsConstructor
+    static class CourseListDTO {
+        private Long id;
+        private String title;
+        private LocalDate period;
     }
 }
