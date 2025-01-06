@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
@@ -20,8 +21,8 @@ public class CourseRepository {
     }
 
     // 강의 조회
-    public Course findOne(Long id){
-        return em.find(Course.class, id);
+    public Optional<Course> findOne(Long id){
+        return Optional.ofNullable(em.find(Course.class, id));
     }
 
     // 강의 리스트 조회
