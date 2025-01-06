@@ -25,20 +25,28 @@ public class CourseRepository {
         return Optional.ofNullable(em.find(Course.class, id));
     }
 
-    // 강의 리스트 조회
-    /*public List<Course> findThisSemester(Long id, int year, int semester){
+    // 강의 리스트 조회 => 해당 학기 강의 조회, 시간표XXX
+    public List<Course> findThisSemester(Long id, int year, int semester){
         // (JPQL, 반환 타입)
         return em.createQuery("select c from Course c where c.user.id = :id and c.year = :year and c.semester = :semester", Course.class)
                 .setParameter("id", id)
                 .setParameter("year", year)
                 .setParameter("semester", semester)
                 .getResultList();
-    }*/
+    }
 
-    // 강의 스케줄 조회 => 시간대 중복 체크용
-    public List<CourseSchedule> findScheduleByUserId(Long userId){
-        return em.createQuery("select cs from CourseSchedule cs, Course c where c.user.id = :id and cs.course.id = c.id", CourseSchedule.class)
+    // 강의 스케줄 조회 => 시간대 중복 체크용, 년도 및 학기 추가
+    public List<CourseSchedule> findScheduleByUserId(Long userId, int year, int semester){
+        return em.createQuery(
+                "select cs from CourseSchedule cs, Course c " +
+                        "where c.user.id = :id " +
+                        "and c.year = :year " +
+                        "and c.semester = :semester " +
+                        "and cs.course.id = c.id",
+                        CourseSchedule.class)
                 .setParameter("id", userId)
+                .setParameter("year", year)
+                .setParameter("semester", semester)
                 .getResultList();
     }
 }
