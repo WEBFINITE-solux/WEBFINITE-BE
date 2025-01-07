@@ -2,7 +2,6 @@ package com.SOLUX_WEBFINITE_BE.webfinite_be.controller;
 
 import com.SOLUX_WEBFINITE_BE.webfinite_be.domain.Course;
 import com.SOLUX_WEBFINITE_BE.webfinite_be.domain.CourseSchedule;
-import com.SOLUX_WEBFINITE_BE.webfinite_be.domain.Day;
 import com.SOLUX_WEBFINITE_BE.webfinite_be.service.CourseService;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.Valid;
@@ -12,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 
@@ -24,10 +24,16 @@ public class CourseController {
 
     @GetMapping("/{userId}")
     public CourseListResponse courseList(@PathVariable("userId") Long id, @RequestBody @Valid CourseListRequest request){
-        List<Course> courses = courseService.findListThisSemester(id, request.getYear(), request.getSemester());
+        List<Course> courses = courseService.getListThisSemester(id, request.getYear(), request.getSemester());
         return new CourseListResponse(courses);
     }
 
+
+    @GetMapping("/table/{userId}")
+    public CourseScheduleResponse courseTable(@PathVariable("userId") Long id, @RequestBody @Valid CourseListRequest request){
+        List<Map<String, Object>> courses = courseService.getCourseTimeTable(id, request.getYear(), request.getSemester());
+        return new CourseScheduleResponse(courses);
+    }
 
     @PostMapping("/{userId}/new")
     public createCourseResponse saveCourse(@PathVariable("userId") Long userId, @RequestBody @Valid createCourseRequest request){
@@ -97,5 +103,11 @@ public class CourseController {
         private Long id;
         private String title;
         private LocalDate period;
+    }
+
+    @Data
+    @AllArgsConstructor
+    static class CourseScheduleResponse<T>{
+        private T courses;
     }
 }

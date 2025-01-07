@@ -1,7 +1,6 @@
 package com.SOLUX_WEBFINITE_BE.webfinite_be.reposiroty;
 
 import com.SOLUX_WEBFINITE_BE.webfinite_be.domain.Course;
-import com.SOLUX_WEBFINITE_BE.webfinite_be.domain.CourseFile;
 import com.SOLUX_WEBFINITE_BE.webfinite_be.domain.CourseSchedule;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +28,17 @@ public class CourseRepository {
     public List<Course> findThisSemester(Long id, int year, int semester){
         // (JPQL, 반환 타입)
         return em.createQuery("select c from Course c where c.user.id = :id and c.year = :year and c.semester = :semester", Course.class)
+                .setParameter("id", id)
+                .setParameter("year", year)
+                .setParameter("semester", semester)
+                .getResultList();
+    }
+
+    // 강의 시간표 조회
+    public List<Object[]> findCourseWithSchedules(Long id, int year, int semester){
+        return em.createQuery("" +
+                "select c, cs from Course c JOIN c.schedules cs " +
+                "where c.user.id = :id and c.year = :year and c.semester = :semester", Object[].class)
                 .setParameter("id", id)
                 .setParameter("year", year)
                 .setParameter("semester", semester)
