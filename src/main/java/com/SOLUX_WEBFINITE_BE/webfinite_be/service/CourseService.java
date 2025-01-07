@@ -11,7 +11,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @Transactional
@@ -41,7 +44,7 @@ public class CourseService {
     }
 
     // 강의 목록 조회(시간X)
-    public List<Course> findListThisSemester(Long id, int year, int semester){
+    public List<Course> getListThisSemester(Long id, int year, int semester){
         // 임시로 작성한 UserRepository 사용, 이후 UserRepository에서 꺼내오도록 수정 필요
         User user = userRepository.findOne(id)
                 .orElseThrow(() -> new UserNotFoundException());
@@ -55,6 +58,38 @@ public class CourseService {
                 throw new IllegalStateException("시작 시간이 종료 시간보다 늦을 수 없습니다.");
             }
         }
+    }
+
+    // 강의 시간표 조회
+    public List<Map<String, Object>> getCourseTimeTable(Long id, int year, int semester){
+        List<Object[]> results = courseRepository.findCourseWithSchedules(id, year, semester);
+
+        // 결과 가공
+        Map<Long, Map<String, Object>> courseMap = new LinkedHashMap<>();
+
+        for (Object[] row : results) {
+            Course course = (Course) row[0];
+            CourseSchedule schedule = (CourseSchedule) row[1];
+
+
+            // 강의 데이터 추가
+            courseMap.putIfAbsent(course.getId(), Map.of(
+                    "course_id", course.getId(),
+                    "title", course.getTitle(),
+                    "color", course.getColor(),
+                    "schedule", new ArrayList<>()
+            ));
+
+            // 각 강의에 대한 스케줄 추가
+            List<Map<String, Object>> schedules = (List<Map<String, Object>>) courseMap.get(course.getId()).get("schedule");
+            schedules.add(Map.of(
+                    "day", schedule.getDay().toString(),
+                    "start_time", schedule.getStartTime().toString(),
+                    "end_time", schedule.getEndTime().toString(),
+                    "location", schedule.getLocation()
+            ));
+        }
+        return new ArrayList<>(courseMap.values());
     }
 
     // 시간대 중복 체크
