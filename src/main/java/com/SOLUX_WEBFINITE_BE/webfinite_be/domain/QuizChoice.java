@@ -1,9 +1,10 @@
 package com.SOLUX_WEBFINITE_BE.webfinite_be.domain;
 
 import jakarta.persistence.*;
+import lombok.Getter;
 
 @Entity
-@Table(name = "quiz_choice")
+@Getter
 public class QuizChoice {
 
     @Id
