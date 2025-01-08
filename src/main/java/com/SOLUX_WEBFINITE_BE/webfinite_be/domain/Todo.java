@@ -1,11 +1,12 @@
 package com.SOLUX_WEBFINITE_BE.webfinite_be.domain;
 
 import jakarta.persistence.*;
+import lombok.Getter;
 
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "todo")
+@Getter
 public class Todo {
 
     @Id
