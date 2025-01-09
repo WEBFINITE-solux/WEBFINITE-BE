@@ -2,12 +2,15 @@ package com.SOLUX_WEBFINITE_BE.webfinite_be.controller;
 
 import com.SOLUX_WEBFINITE_BE.webfinite_be.domain.Course;
 import com.SOLUX_WEBFINITE_BE.webfinite_be.domain.CourseSchedule;
+import com.SOLUX_WEBFINITE_BE.webfinite_be.dto.FileDTO;
 import com.SOLUX_WEBFINITE_BE.webfinite_be.service.CourseService;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.Valid;
 import lombok.*;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
@@ -40,6 +43,15 @@ public class CourseController {
 
         Long courseId = courseService.saveCourse(userId, request.getTitle(), request.getPeriod(), request.getYear(), request.getSemester(), request.getColor(), request.toCourseSchedule());
         return new createCourseResponse(courseId);
+    }
+
+    @PostMapping("/file/{courseId}/upload")
+    public FileDTO uploadFile(@PathVariable("courseId") Long courseId, MultipartFile file){
+        try {
+            return courseService.uploadFile(courseId, file);
+        } catch (IOException e) {
+            throw new IllegalStateException("파일 업로드에 실해했습니다.");
+        }
     }
 
     @Data

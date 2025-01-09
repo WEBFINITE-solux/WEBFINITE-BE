@@ -1,20 +1,25 @@
 package com.SOLUX_WEBFINITE_BE.webfinite_be.service;
 
 import com.SOLUX_WEBFINITE_BE.webfinite_be.domain.Course;
+import com.SOLUX_WEBFINITE_BE.webfinite_be.domain.CourseFile;
 import com.SOLUX_WEBFINITE_BE.webfinite_be.domain.CourseSchedule;
 import com.SOLUX_WEBFINITE_BE.webfinite_be.domain.User;
+import com.SOLUX_WEBFINITE_BE.webfinite_be.dto.FileDTO;
+import com.SOLUX_WEBFINITE_BE.webfinite_be.exception.NotFoundCourseException;
 import com.SOLUX_WEBFINITE_BE.webfinite_be.exception.UserNotFoundException;
 import com.SOLUX_WEBFINITE_BE.webfinite_be.reposiroty.CourseRepository;
 import com.SOLUX_WEBFINITE_BE.webfinite_be.reposiroty.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 @Transactional
@@ -90,6 +95,37 @@ public class CourseService {
             ));
         }
         return new ArrayList<>(courseMap.values());
+    }
+
+    // 파일 업로드
+    public FileDTO uploadFile(Long courseId,  MultipartFile file) throws IOException {
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new NotFoundCourseException());
+
+        if(file.isEmpty())
+            throw new IllegalStateException("파일이 비어있습니다.");
+
+        String fileName = file.getOriginalFilename();
+
+        // 파일 저장 경로 설정
+        String filepath = "uploads/"+ UUID.randomUUID()+"_"+fileName;
+
+        // 파일 저장 (개발 진행 -> 로컬, 배포 -> S3(예정))
+        Path path = Paths.get(filepath);
+        Files.createDirectories(path.getParent()); // 디렉토리 생성
+        Files.write(path, file.getBytes());
+
+        // CourseFile 엔티티 생성
+        CourseFile courseFile = new CourseFile();
+        courseFile.setOriginalFilename(fileName);
+        courseFile.setFilePath(filepath);
+        courseFile.setCourse(course); // 연관 관계 설정
+
+        course.addFile(courseFile);
+
+        courseRepository.save(courseFile);
+
+        return new FileDTO(course.getId(), courseFile.getId(), courseFile.getOriginalFilename(), courseFile.getFilePath(), "파일이 성공적으로 업로드되었습니다.");
     }
 
     // 시간대 중복 체크
