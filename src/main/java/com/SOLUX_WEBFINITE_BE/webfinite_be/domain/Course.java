@@ -62,6 +62,11 @@ public class Course {
 
     }
 
+    public void addFile(CourseFile file){
+        files.add(file);
+        file.setCourse(this);
+    }
+
     public void setPrompt(Prompt prompt){
         this.prompt = prompt;
     }
