@@ -1,6 +1,7 @@
 package com.SOLUX_WEBFINITE_BE.webfinite_be.reposiroty;
 
 import com.SOLUX_WEBFINITE_BE.webfinite_be.domain.Course;
+import com.SOLUX_WEBFINITE_BE.webfinite_be.domain.CourseFile;
 import com.SOLUX_WEBFINITE_BE.webfinite_be.domain.CourseSchedule;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
@@ -58,5 +59,10 @@ public class CourseRepository {
                 .setParameter("year", year)
                 .setParameter("semester", semester)
                 .getResultList();
+    }
+
+    // 파일 저장
+    public void save(CourseFile courseFile){
+        em.persist(courseFile);
     }
 }
