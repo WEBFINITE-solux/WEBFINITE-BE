@@ -27,6 +27,13 @@ public class CourseController {
 
     @GetMapping("/{userId}")
     public CourseListResponse courseList(@PathVariable("userId") Long id, @RequestBody @Valid CourseListRequest request){
+        if(id == null){
+            throw new IllegalStateException("사용자 정보가 없습니다.");
+        }
+        if(request == null){
+            throw new IllegalStateException("학기 정보가 없습니다.");
+        }
+
         List<Course> courses = courseService.getListThisSemester(id, request.getYear(), request.getSemester());
         return new CourseListResponse(courses);
     }
@@ -34,25 +41,41 @@ public class CourseController {
 
     @GetMapping("/table/{userId}")
     public CourseScheduleResponse courseTable(@PathVariable("userId") Long id, @RequestBody @Valid CourseListRequest request){
+        if(id == null){
+            throw new IllegalStateException("사용자 정보가 없습니다.");
+        }
+        if(request == null){
+            throw new IllegalStateException("학기 정보가 없습니다.");
+        }
         List<Map<String, Object>> courses = courseService.getCourseTimeTable(id, request.getYear(), request.getSemester());
         return new CourseScheduleResponse(courses);
     }
 
     @PostMapping("/{userId}/new")
-    public createCourseResponse saveCourse(@PathVariable("userId") Long userId, @RequestBody @Valid createCourseRequest request){
+    public createCourseResponse saveCourse(@PathVariable("userId") Long id, @RequestBody @Valid createCourseRequest request){
+        if(id == null){
+            throw new IllegalStateException("사용자 정보가 없습니다.");
+        }
 
-        Long courseId = courseService.saveCourse(userId, request.getTitle(), request.getPeriod(), request.getYear(), request.getSemester(), request.getColor(), request.toCourseSchedule());
+        Long courseId = courseService.saveCourse(id, request.getTitle(), request.getPeriod(), request.getYear(), request.getSemester(), request.getColor(), request.toCourseSchedule());
         return new createCourseResponse(courseId);
     }
 
     @GetMapping("/file/{courseId}")
     public FileListResponse getCourseFiles(@PathVariable("courseId") Long courseId){
+        if(courseId == null){
+            throw new IllegalStateException("강의 정보가 없습니다.");
+        }
+
         List<FileDTO> files = courseService.getCourseFiles(courseId);
         return new FileListResponse(files);
     }
 
     @PostMapping("/file/{courseId}/upload")
     public FileDTO uploadFile(@PathVariable("courseId") Long courseId, MultipartFile file){
+        if(courseId == null){
+            throw new IllegalStateException("강의 정보가 없습니다.");
+        }
         try {
             return courseService.uploadFile(courseId, file);
         } catch (IOException e) {
