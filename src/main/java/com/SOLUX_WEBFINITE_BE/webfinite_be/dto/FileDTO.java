@@ -7,13 +7,8 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class FileDTO {
-    @JsonProperty("course_id")
-    private Long courseId;
     @JsonProperty("file_id")
     private Long fileId;
     @JsonProperty("original_filename")
     private String originalFilename;
-    @JsonProperty("file_path")
-    private String filePath;
-    private String message;
 }
