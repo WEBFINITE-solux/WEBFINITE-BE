@@ -5,7 +5,7 @@ import com.SOLUX_WEBFINITE_BE.webfinite_be.domain.CourseFile;
 import com.SOLUX_WEBFINITE_BE.webfinite_be.domain.CourseSchedule;
 import com.SOLUX_WEBFINITE_BE.webfinite_be.domain.User;
 import com.SOLUX_WEBFINITE_BE.webfinite_be.dto.FileDTO;
-import com.SOLUX_WEBFINITE_BE.webfinite_be.exception.NotFoundCourseException;
+import com.SOLUX_WEBFINITE_BE.webfinite_be.exception.CourseNotFoundException;
 import com.SOLUX_WEBFINITE_BE.webfinite_be.exception.UserNotFoundException;
 import com.SOLUX_WEBFINITE_BE.webfinite_be.reposiroty.CourseRepository;
 import com.SOLUX_WEBFINITE_BE.webfinite_be.reposiroty.UserRepository;
@@ -100,7 +100,7 @@ public class CourseService {
     // 파일 업로드
     public FileDTO uploadFile(Long courseId,  MultipartFile file) throws IOException {
         Course course = courseRepository.findById(courseId)
-                .orElseThrow(() -> new NotFoundCourseException());
+                .orElseThrow(() -> new CourseNotFoundException());
 
         if(file.isEmpty())
             throw new IllegalStateException("파일이 비어있습니다.");
@@ -125,7 +125,19 @@ public class CourseService {
 
         courseRepository.save(courseFile);
 
-        return new FileDTO(course.getId(), courseFile.getId(), courseFile.getOriginalFilename(), courseFile.getFilePath(), "파일이 성공적으로 업로드되었습니다.");
+        return new FileDTO( courseFile.getId(), courseFile.getOriginalFilename());
+    }
+
+    // 강의 자료 조회
+    public List<FileDTO> getCourseFiles(Long courseId){
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new CourseNotFoundException());
+
+        List<CourseFile> files = courseRepository.findFilesByCourseId(courseId);
+
+        return files.stream()
+                .map(file -> new FileDTO(file.getId(), file.getOriginalFilename()))
+                .toList();
     }
 
     // 시간대 중복 체크

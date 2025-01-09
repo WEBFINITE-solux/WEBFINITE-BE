@@ -65,4 +65,11 @@ public class CourseRepository {
     public void save(CourseFile courseFile){
         em.persist(courseFile);
     }
+
+    // 파일 조회
+    public List<CourseFile> findFilesByCourseId(Long courseId){
+        return em.createQuery("select cf from CourseFile cf where cf.course.id = :id", CourseFile.class)
+                .setParameter("id", courseId)
+                .getResultList();
+    }
 }

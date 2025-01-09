@@ -45,6 +45,12 @@ public class CourseController {
         return new createCourseResponse(courseId);
     }
 
+    @GetMapping("/file/{courseId}")
+    public FileListResponse getCourseFiles(@PathVariable("courseId") Long courseId){
+        List<FileDTO> files = courseService.getCourseFiles(courseId);
+        return new FileListResponse(files);
+    }
+
     @PostMapping("/file/{courseId}/upload")
     public FileDTO uploadFile(@PathVariable("courseId") Long courseId, MultipartFile file){
         try {
@@ -121,5 +127,11 @@ public class CourseController {
     @AllArgsConstructor
     static class CourseScheduleResponse<T>{
         private T courses;
+    }
+
+    @Data
+    @AllArgsConstructor
+    static class FileListResponse<T> {
+        private T files;
     }
 }
