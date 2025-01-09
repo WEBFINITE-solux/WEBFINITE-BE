@@ -14,19 +14,19 @@ public class User {
     @Column(name = "user_id")
     private Long id;
 
-    @Column(name = "login_user_id")
+    @Column(name = "login_user_id", nullable = false)
     private String loginUserId;
 
-    @Column(name = "password")
+    @Column(name = "password", nullable = false)
     private String password;
 
-    @Column(name = "confirm_password")
+    @Column(name = "confirm_password", nullable = false)
     private String confirmPassword;
 
-    @Column(name = "nickname")
+    @Column(name = "nickname", nullable = false)
     private String nickname;
 
-    @Column(name = "email")
+    @Column(name = "email", nullable = false)
     private String email;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL) // User와 Course는 일대다 관계
