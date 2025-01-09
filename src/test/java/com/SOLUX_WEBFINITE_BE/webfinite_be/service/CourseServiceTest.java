@@ -1,8 +1,6 @@
 package com.SOLUX_WEBFINITE_BE.webfinite_be.service;
 
-import com.SOLUX_WEBFINITE_BE.webfinite_be.domain.Course;
 import com.SOLUX_WEBFINITE_BE.webfinite_be.domain.CourseSchedule;
-import com.SOLUX_WEBFINITE_BE.webfinite_be.domain.Day;
 import com.SOLUX_WEBFINITE_BE.webfinite_be.domain.User;
 import com.SOLUX_WEBFINITE_BE.webfinite_be.reposiroty.CourseRepository;
 import com.SOLUX_WEBFINITE_BE.webfinite_be.reposiroty.UserRepository;
@@ -10,14 +8,12 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -55,7 +51,7 @@ public class CourseServiceTest {
 
 
         // then
-        assertEquals(saveId, courseRepository.findOne(saveId).get().getId());
+        assertEquals(saveId, courseRepository.findById(saveId).get().getId());
     }
 
     @Test(expected = IllegalStateException.class)

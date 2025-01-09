@@ -27,7 +27,7 @@ public class CourseService {
     @Transactional
     public Long saveCourse(Long id, String title, LocalDate period, int year, int semester, String color, List<CourseSchedule> schedules){
         // 임시로 작성한 UserRepository 사용, 이후 UserRepository에서 꺼내오도록 수정 필요
-        User user = userRepository.findOne(id)
+        User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException());
 
         // 시간대 유효성 검증
@@ -46,7 +46,7 @@ public class CourseService {
     // 강의 목록 조회(시간X)
     public List<Course> getListThisSemester(Long id, int year, int semester){
         // 임시로 작성한 UserRepository 사용, 이후 UserRepository에서 꺼내오도록 수정 필요
-        User user = userRepository.findOne(id)
+        User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException());
 
         return courseRepository.findThisSemester(user.getId(), year, semester);

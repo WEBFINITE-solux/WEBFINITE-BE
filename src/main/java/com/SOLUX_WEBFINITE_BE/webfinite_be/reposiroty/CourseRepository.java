@@ -20,7 +20,7 @@ public class CourseRepository {
     }
 
     // 강의 조회
-    public Optional<Course> findOne(Long id){
+    public Optional<Course> findById(Long id){
         return Optional.ofNullable(em.find(Course.class, id));
     }
 
@@ -34,7 +34,7 @@ public class CourseRepository {
                 .getResultList();
     }
 
-    // 강의 시간표 조회
+    // 강의 시간표 조회, 강의 목록+일정
     public List<Object[]> findCourseWithSchedules(Long id, int year, int semester){
         return em.createQuery("" +
                 "select c, cs from Course c JOIN c.schedules cs " +
@@ -45,7 +45,7 @@ public class CourseRepository {
                 .getResultList();
     }
 
-    // 강의 스케줄 조회 => 시간대 중복 체크용, 년도 및 학기 추가
+    // 강의 일정 조회 => 시간대 중복 체크용, only 일정
     public List<CourseSchedule> findScheduleByUserId(Long userId, int year, int semester){
         return em.createQuery(
                 "select cs from CourseSchedule cs, Course c " +
