@@ -2,12 +2,13 @@ package com.SOLUX_WEBFINITE_BE.webfinite_be.domain;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
 @Entity
-@Getter
+@Getter @Setter
 public class CourseFile {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
