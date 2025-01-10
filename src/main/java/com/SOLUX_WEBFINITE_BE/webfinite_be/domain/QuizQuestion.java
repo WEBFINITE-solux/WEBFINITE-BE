@@ -2,7 +2,6 @@ package com.SOLUX_WEBFINITE_BE.webfinite_be.domain;
 
 import jakarta.persistence.*;
 import lombok.Getter;
-import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,13 +26,13 @@ public class QuizQuestion {
     @Column(columnDefinition = "TEXT")
     private String explanation;
 
-    @Setter
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "quiz_id", nullable = false)
     private Quiz quiz;
 
     // QuizChoice와의 양방향 관계
     @OneToMany(mappedBy = "quizQuestion", cascade = CascadeType.ALL, orphanRemoval = true)
+    
     private List<QuizChoice> quizChoices = new ArrayList<>();
 
     // UserAnswer와의 양방향 관계
@@ -51,4 +50,7 @@ public class QuizQuestion {
         userAnswer.setQuizQuestion(this);
     }
 
+    public void setQuiz(Quiz quiz) {
+        this.quiz = quiz;
+    }
 }
