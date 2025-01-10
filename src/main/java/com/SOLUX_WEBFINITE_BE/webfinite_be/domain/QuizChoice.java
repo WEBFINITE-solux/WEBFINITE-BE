@@ -18,4 +18,12 @@ public class QuizChoice {
     @JoinColumn(name = "question_id", nullable = false)
     private QuizQuestion quizQuestion;
 
+    // 연관 관계 메서드
+    public void setQuizQuestion(QuizQuestion quizQuestion) {
+        this.quizQuestion = quizQuestion;
+        if (!quizQuestion.getQuizChoices().contains(this)) {
+            quizQuestion.getQuizChoices().add(this);
+        }
+    }
+
 }
