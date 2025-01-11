@@ -61,6 +61,11 @@ public class CourseRepository {
                 .getResultList();
     }
 
+    // 강의 삭제
+    public void delete(Course course) {
+        em.remove(course);
+    }
+
     // 파일 저장
     public void save(CourseFile courseFile){
         em.persist(courseFile);
@@ -72,4 +77,5 @@ public class CourseRepository {
                 .setParameter("id", courseId)
                 .getResultList();
     }
+
 }

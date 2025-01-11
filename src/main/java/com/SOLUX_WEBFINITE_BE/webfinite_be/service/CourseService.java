@@ -97,6 +97,14 @@ public class CourseService {
         return new ArrayList<>(courseMap.values());
     }
 
+    // 강의 삭제
+    public void deleteCourse(Long courseId) {
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new CourseNotFoundException());
+
+        courseRepository.delete(course);
+    }
+
     // 파일 업로드
     public FileDTO uploadFile(Long courseId,  MultipartFile file) throws IOException {
         Course course = courseRepository.findById(courseId)
