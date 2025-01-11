@@ -27,9 +27,11 @@ public class Todo {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    // ==== 연관 관계 메서드 ====
+    // 연관 관계 메서드(User에 관련 설정 추가 필요함)
     //public void setUser(User user) {
     //    this.user = user;
-    //    user.getTodos().add(this);
+    //    if (!user.getTodos().contains(this)) {
+    //        user.getTodos().add(this);
+    //    }
     //}
 }
