@@ -61,6 +61,15 @@ public class CourseController {
         return new createCourseResponse(courseId);
     }
 
+    @DeleteMapping("/{courseId}/delete")
+    public void deleteCourse(@PathVariable("courseId") Long courseId){
+        if(courseId == null){
+            throw new IllegalStateException("강의 정보가 없습니다.");
+        }
+
+        courseService.deleteCourse(courseId);
+    }
+
     @GetMapping("/file/{courseId}")
     public FileListResponse getCourseFiles(@PathVariable("courseId") Long courseId){
         if(courseId == null){
@@ -76,12 +85,16 @@ public class CourseController {
         if(courseId == null){
             throw new IllegalStateException("강의 정보가 없습니다.");
         }
+        if(file.isEmpty() || file == null){
+            throw new IllegalStateException("파일이 비어있습니다.");
+        }
         try {
             return courseService.uploadFile(courseId, file);
         } catch (IOException e) {
             throw new IllegalStateException("파일 업로드에 실해했습니다.");
         }
     }
+
 
     @Data
     @AllArgsConstructor
