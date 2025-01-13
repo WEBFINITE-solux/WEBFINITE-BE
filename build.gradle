@@ -30,9 +30,6 @@ dependencies {
 	compileOnly 'org.projectlombok:lombok'
 	runtimeOnly 'com.h2database:h2'
 	annotationProcessor 'org.projectlombok:lombok'
-	// Spring Test를 프로덕션에서도 사용 가능하게 추가
-	implementation 'org.springframework:spring-test'
-	// 테스트 관련 의존성
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 	//JUnit4 추가
@@ -41,6 +38,8 @@ dependencies {
 	}
 	//Swagger
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.7.0'
+	// pdf -> text
+	implementation group: 'org.apache.pdfbox', name: 'pdfbox', version: '2.0.19'
 }
 
 tasks.named('test') {
