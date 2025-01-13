@@ -78,4 +78,9 @@ public class CourseRepository {
                 .getResultList();
     }
 
+    // 파일 1개 조회
+    public Optional<CourseFile> findFileById(Long fileId){
+        return Optional.ofNullable(em.find(CourseFile.class, fileId));
+    }
+
 }
