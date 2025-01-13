@@ -38,4 +38,16 @@ public class Prompt {
         this.course = course;
         course.setPrompt(this);
     }
+
+    // ==== 생성 메서드 ====
+    public static Prompt createPrompt(LocalDate startDate, LocalDate endDate, String startUnit, String endUnit, String description){
+        Prompt prompt = new Prompt();
+        prompt.startDate = startDate;
+        prompt.endDate = endDate;
+        prompt.startUnit = startUnit;
+        prompt.endUnit = endUnit;
+        prompt.description = description;
+
+        return prompt;
+    }
 }
