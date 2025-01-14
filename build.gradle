@@ -38,6 +38,9 @@ dependencies {
 	}
 	//Swagger
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.7.0'
+
+	//Spring Security: BCryptPasswordEncoder (비밀번호 암호화) 사용
+	implementation 'org.springframework.boot:spring-boot-starter-security'
 }
 
 tasks.named('test') {
