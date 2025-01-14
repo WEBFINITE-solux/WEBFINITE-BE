@@ -1,5 +1,6 @@
 package com.SOLUX_WEBFINITE_BE.webfinite_be.controller;
 
+import com.SOLUX_WEBFINITE_BE.webfinite_be.dto.PlanDTO;
 import com.SOLUX_WEBFINITE_BE.webfinite_be.service.GPTService;
 import com.SOLUX_WEBFINITE_BE.webfinite_be.service.PlanService;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
@@ -19,10 +20,23 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class PlanController {
     private final PlanService planService;
-    private final GPTService gptService;
+
+    @GetMapping("/{courseId}")
+    public PlanDTO getPlan(@PathVariable("courseId") Long courseId) {
+        if(courseId == null){
+            throw new IllegalStateException("강의 정보가 없습니다.");
+        }
+        return planService.getPlan(courseId);
+    }
 
     @PostMapping("/{courseId}/new")
     public Map<String, String> createPlan(@PathVariable("courseId") Long courseId, @RequestBody CreatePlanRequest request) throws IOException, URISyntaxException {
+        if(courseId == null){
+            throw new IllegalStateException("강의 정보가 없습니다.");
+        }
+        if(request == null){
+            throw new IllegalStateException("학습 계획 정보가 없습니다.");
+        }
         return planService.createPlan(courseId, request.promptText, request.startDate, request.endDate, request.startUnit, request.endUnit, request.fileId);
     }
 
