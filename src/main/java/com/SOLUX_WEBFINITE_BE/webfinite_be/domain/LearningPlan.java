@@ -1,5 +1,6 @@
 package com.SOLUX_WEBFINITE_BE.webfinite_be.domain;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.Getter;
 
@@ -15,9 +16,11 @@ public class LearningPlan {
     private int week;
 
     @Column(name = "plan_title", nullable = false)
+    @JsonProperty("plan_title")
     private String title;
 
     @Column(name = "plan_description", columnDefinition = "TEXT", nullable = false)
+    @JsonProperty("plan_description")
     private String description;
 
     @ManyToOne(fetch = FetchType.LAZY)
