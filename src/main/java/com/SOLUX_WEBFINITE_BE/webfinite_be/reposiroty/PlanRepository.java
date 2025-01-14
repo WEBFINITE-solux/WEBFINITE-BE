@@ -1,5 +1,6 @@
 package com.SOLUX_WEBFINITE_BE.webfinite_be.reposiroty;
 
+import com.SOLUX_WEBFINITE_BE.webfinite_be.domain.LearningPlan;
 import com.SOLUX_WEBFINITE_BE.webfinite_be.domain.Prompt;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
@@ -13,5 +14,10 @@ public class PlanRepository {
     // prompt 저장
     public void savePrompt(Prompt prompt){
         em.persist(prompt);
+    }
+
+    // plan 저장
+    public void savePlan(LearningPlan plan) {
+        em.persist(plan);
     }
 }
