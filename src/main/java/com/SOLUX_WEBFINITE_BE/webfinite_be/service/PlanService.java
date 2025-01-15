@@ -61,6 +61,10 @@ public class PlanService {
 
         String response = gptService.chat(requestPrompt);
 
+        if(response.startsWith("```")){
+            response = response.replaceAll("(?i)```JSON\\s*```", ""); // 혹시나 마크다운 코드블럭 표시가 있을 경우 제거
+        }
+
         List<LearningPlan> plans = textToPlan(response);
 
         for(LearningPlan plan : plans){
@@ -68,9 +72,21 @@ public class PlanService {
             planRepository.savePlan(plan);
         }
 
-        planRepository.savePrompt(prompt);
-
         return Map.of("message", "학습 계획 생성 완료");
+    }
+
+    public Map<String, String> updatePlan(Long courseId, PlanDTO plans) {
+        Course course = courseRepository.findById(courseId).orElseThrow(() -> new CourseNotFoundException());
+        List<LearningPlan> learningPlans = planRepository.findPlansByCourseId(courseId);
+        // plan_id 기준으로 plans와 learningPlans를 비교하여 수정할 것 수정
+        for(LearningPlan plan : learningPlans){
+            for(PlanDTO.Plan planDTO : plans.getLearningPlan()){
+                if(plan.getId().equals(planDTO.getPlanId())){
+                    plan.setDescription(planDTO.getPlanDescription());
+                }
+            }
+        }
+        return Map.of("message", "학습 계획 수정 완료");
     }
 
     private String pdfToText(File file) throws IOException {
@@ -91,7 +107,7 @@ public class PlanService {
             plans = objectMapper.readValue(text, new TypeReference<List<LearningPlan>>() {});
             return plans;
         } catch (JsonMappingException e) {
-            throw new RuntimeException(e);
+            throw new IllegalStateException("JSON 변환 중 오류가 발생했습니다. 다시 시도해주세요.");
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }

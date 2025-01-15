@@ -40,6 +40,14 @@ public class PlanController {
         return planService.createPlan(courseId, request.promptText, request.startDate, request.endDate, request.startUnit, request.endUnit, request.fileId);
     }
 
+    @PatchMapping("{courseId}/update")
+    public Map<String, String> updatePlan(@PathVariable("courseId") Long courseId, @RequestBody PlanDTO plans){
+        if(courseId == null){
+            throw new IllegalStateException("강의 정보가 없습니다.");
+        }
+        return planService.updatePlan(courseId, plans);
+    }
+
 
     @Data
     @AllArgsConstructor
