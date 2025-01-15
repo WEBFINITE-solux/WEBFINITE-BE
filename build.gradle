@@ -40,6 +40,9 @@ dependencies {
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.7.0'
 	// pdf -> text
 	implementation group: 'org.apache.pdfbox', name: 'pdfbox', version: '2.0.19'
+
+	//Spring Security: BCryptPasswordEncoder (비밀번호 암호화) 사용
+	implementation 'org.springframework.boot:spring-boot-starter-security'
 }
 
 tasks.named('test') {
