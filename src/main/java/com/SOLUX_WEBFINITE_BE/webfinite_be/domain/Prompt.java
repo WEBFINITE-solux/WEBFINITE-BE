@@ -2,11 +2,12 @@ package com.SOLUX_WEBFINITE_BE.webfinite_be.domain;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDate;
 
 @Entity
-@Getter
+@Getter @Setter
 public class Prompt {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
