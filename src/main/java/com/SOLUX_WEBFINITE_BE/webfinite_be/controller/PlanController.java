@@ -1,6 +1,7 @@
 package com.SOLUX_WEBFINITE_BE.webfinite_be.controller;
 
 import com.SOLUX_WEBFINITE_BE.webfinite_be.dto.PlanDTO;
+import com.SOLUX_WEBFINITE_BE.webfinite_be.dto.SimpleResponse;
 import com.SOLUX_WEBFINITE_BE.webfinite_be.service.GPTService;
 import com.SOLUX_WEBFINITE_BE.webfinite_be.service.PlanService;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
@@ -30,7 +31,7 @@ public class PlanController {
     }
 
     @PostMapping("/{courseId}/new")
-    public Map<String, String> createPlan(@PathVariable("courseId") Long courseId, @RequestBody CreatePlanRequest request) throws IOException, URISyntaxException {
+    public SimpleResponse createPlan(@PathVariable("courseId") Long courseId, @RequestBody CreatePlanRequest request) throws IOException, URISyntaxException {
         if(courseId == null){
             throw new IllegalStateException("강의 정보가 없습니다.");
         }
@@ -41,7 +42,7 @@ public class PlanController {
     }
 
     @PatchMapping("{courseId}/update")
-    public Map<String, String> updatePlan(@PathVariable("courseId") Long courseId, @RequestBody PlanDTO plans){
+    public SimpleResponse updatePlan(@PathVariable("courseId") Long courseId, @RequestBody PlanDTO plans){
         if(courseId == null){
             throw new IllegalStateException("강의 정보가 없습니다.");
         }

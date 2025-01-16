@@ -3,6 +3,7 @@ package com.SOLUX_WEBFINITE_BE.webfinite_be.controller;
 import com.SOLUX_WEBFINITE_BE.webfinite_be.domain.Course;
 import com.SOLUX_WEBFINITE_BE.webfinite_be.domain.CourseSchedule;
 import com.SOLUX_WEBFINITE_BE.webfinite_be.dto.FileDTO;
+import com.SOLUX_WEBFINITE_BE.webfinite_be.dto.SimpleResponse;
 import com.SOLUX_WEBFINITE_BE.webfinite_be.service.CourseService;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.Valid;
@@ -62,12 +63,13 @@ public class CourseController {
     }
 
     @DeleteMapping("/{courseId}/delete")
-    public void deleteCourse(@PathVariable("courseId") Long courseId){
+    public SimpleResponse deleteCourse(@PathVariable("courseId") Long courseId){
         if(courseId == null){
             throw new IllegalStateException("강의 정보가 없습니다.");
         }
 
         courseService.deleteCourse(courseId);
+        return new SimpleResponse("강의 삭제 완료");
     }
 
     @GetMapping("/file/{courseId}")
@@ -100,12 +102,12 @@ public class CourseController {
     }
 
     @DeleteMapping("/file/{fileId}/delete")
-    public Map<String, String> deleteFile(@PathVariable("fileId") Long fileId){
+    public SimpleResponse deleteFile(@PathVariable("fileId") Long fileId){
         if(fileId == null){
             throw new IllegalStateException("파일 정보가 없습니다.");
         }
         courseService.deleteFile(fileId);
-        return Map.of("message", "파일 삭제 완료");
+        return new SimpleResponse("강의 자료 삭제 완료");
     }
 
 

@@ -5,6 +5,7 @@ import com.SOLUX_WEBFINITE_BE.webfinite_be.domain.CourseFile;
 import com.SOLUX_WEBFINITE_BE.webfinite_be.domain.LearningPlan;
 import com.SOLUX_WEBFINITE_BE.webfinite_be.domain.Prompt;
 import com.SOLUX_WEBFINITE_BE.webfinite_be.dto.PlanDTO;
+import com.SOLUX_WEBFINITE_BE.webfinite_be.dto.SimpleResponse;
 import com.SOLUX_WEBFINITE_BE.webfinite_be.dto.gpt.GeneratePrompt;
 import com.SOLUX_WEBFINITE_BE.webfinite_be.exception.CourseNotFoundException;
 import com.SOLUX_WEBFINITE_BE.webfinite_be.reposiroty.CourseRepository;
@@ -46,7 +47,7 @@ public class PlanService {
         return new PlanDTO(promptText, PlanDTO.toPlanDTO(plans));
     }
 
-    public Map<String, String> createPlan(Long courseId, String promptText, LocalDate startDate, LocalDate endDate, String startUnit, String endUnit, Long fileId) throws IOException {
+    public SimpleResponse createPlan(Long courseId, String promptText, LocalDate startDate, LocalDate endDate, String startUnit, String endUnit, Long fileId) throws IOException {
         Course course = courseRepository.findById(courseId).orElseThrow(() -> new CourseNotFoundException());
         CourseFile courseFile = courseRepository.findFileById(fileId).orElseThrow(() -> new IllegalStateException("파일이 존재하지 않습니다."));
         String filePath = courseFile.getFilePath();
@@ -72,10 +73,10 @@ public class PlanService {
             planRepository.savePlan(plan);
         }
 
-        return Map.of("message", "학습 계획 생성 완료");
+        return new SimpleResponse("학습 계획 생성 완료");
     }
 
-    public Map<String, String> updatePlan(Long courseId, PlanDTO plans) {
+    public SimpleResponse updatePlan(Long courseId, PlanDTO plans) {
         Course course = courseRepository.findById(courseId).orElseThrow(() -> new CourseNotFoundException());
         List<LearningPlan> learningPlans = planRepository.findPlansByCourseId(courseId);
         // plan_id 기준으로 plans와 learningPlans를 비교하여 수정할 것 수정
@@ -86,7 +87,7 @@ public class PlanService {
                 }
             }
         }
-        return Map.of("message", "학습 계획 수정 완료");
+        return new SimpleResponse("학습 계획 수정 완료");
     }
 
     private String pdfToText(File file) throws IOException {
