@@ -148,6 +148,12 @@ public class CourseService {
                 .toList();
     }
 
+    // 강의 자료 삭제
+    public void deleteFile(Long fileId) {
+        CourseFile file = courseRepository.findFileById(fileId).orElseThrow(() -> new IllegalStateException("파일이 존재하지 않습니다."));
+        courseRepository.delete(file);
+    }
+
     // 시간대 중복 체크
     private void validateScheduleConflict(Long userId, List<CourseSchedule> newSchedules, int year, int semester) {
         List<CourseSchedule> existingSchedules = courseRepository.findScheduleByUserId(userId, year, semester);

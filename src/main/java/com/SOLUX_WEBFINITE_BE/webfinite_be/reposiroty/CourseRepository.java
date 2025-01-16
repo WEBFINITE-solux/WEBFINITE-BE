@@ -83,4 +83,9 @@ public class CourseRepository {
         return Optional.ofNullable(em.find(CourseFile.class, fileId));
     }
 
+    // 파일 삭제
+    public void delete(CourseFile courseFile){
+        em.remove(courseFile);
+    }
+
 }

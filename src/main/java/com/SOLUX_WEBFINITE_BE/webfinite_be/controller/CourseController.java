@@ -99,6 +99,15 @@ public class CourseController {
         }
     }
 
+    @DeleteMapping("/file/{fileId}/delete")
+    public Map<String, String> deleteFile(@PathVariable("fileId") Long fileId){
+        if(fileId == null){
+            throw new IllegalStateException("파일 정보가 없습니다.");
+        }
+        courseService.deleteFile(fileId);
+        return Map.of("message", "파일 삭제 완료");
+    }
+
 
     @Data
     @AllArgsConstructor
