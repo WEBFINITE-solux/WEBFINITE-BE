@@ -68,6 +68,7 @@ public class PlanService {
 
         List<LearningPlan> plans = textToPlan(response);
 
+        planRepository.savePrompt(prompt);
         for(LearningPlan plan : plans){
             plan.setCourse(course);
             planRepository.savePlan(plan);
