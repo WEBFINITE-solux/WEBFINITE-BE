@@ -35,4 +35,11 @@ public class PlanRepository {
                 .setParameter("id", id)
                 .getResultList();
     }
+
+    // plan 삭제
+    public void deletePlan(Long courseId){
+        em.createQuery("delete from LearningPlan p where p.course.id = :id")
+                .setParameter("id", courseId)
+                .executeUpdate();
+    }
 }

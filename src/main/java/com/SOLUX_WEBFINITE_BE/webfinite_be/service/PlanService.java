@@ -24,7 +24,6 @@ import java.io.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 @Service
 @Transactional
@@ -54,7 +53,6 @@ public class PlanService {
         File file = new File(filePath);
 
         Prompt prompt = Prompt.createPrompt(startDate, endDate, startUnit, endUnit, promptText);
-        prompt.setCourse(course);
 
         String getText = pdfToText(file);
 
@@ -68,7 +66,21 @@ public class PlanService {
 
         List<LearningPlan> plans = textToPlan(response);
 
-        planRepository.savePrompt(prompt);
+        // 이미 prompt가 존재할 경우 수정, 없을 경우 생성
+        if(planRepository.findPromptByCourseId(courseId).isPresent()){
+            Prompt exist = planRepository.findPromptByCourseId(courseId).get();
+            exist.setStartDate(prompt.getStartDate());
+            exist.setEndDate(prompt.getEndDate());
+            exist.setStartUnit(prompt.getStartUnit());
+            exist.setEndUnit(prompt.getEndUnit());
+            exist.setDescription(prompt.getDescription());
+
+            planRepository.deletePlan(courseId);
+        }
+        else {
+            prompt.setCourse(course); // 얘땜에 오류 났었음..
+            planRepository.savePrompt(prompt);
+        }
         for(LearningPlan plan : plans){
             plan.setCourse(course);
             planRepository.savePlan(plan);
