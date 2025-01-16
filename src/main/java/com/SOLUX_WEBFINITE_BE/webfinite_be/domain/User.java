@@ -47,4 +47,16 @@ public class User {
 //    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL) // User와 Quiz는 일대다 관계
 //    private List<Quiz> quizzes = new ArrayList<>();
 
+    // == 비즈니스 로직 == //
+    public void setPassword(String encryptedPassword) {
+        this.password = encryptedPassword;
+    }
+
+    public void setLoginUserId(String loginUserId) {
+        this.loginUserId = loginUserId;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
 }
