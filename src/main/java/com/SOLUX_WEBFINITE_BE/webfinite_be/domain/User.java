@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
+@Table(name = "users")
 @Getter
 public class User {
 
@@ -38,8 +39,8 @@ public class User {
 //    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL) // User와 UserProfile는 일대일 관계
 //    private List<UserProfile> userProfiles = new ArrayList<>();
 //
-//    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL) // User와 Todo는 일대다 관계
-//    private List<Todo> todos = new ArrayList<>();
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL) // User와 Todo는 일대다 관계
+    private List<Todo> todos = new ArrayList<>();
 //
 //    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL) // User와 UserAnswer는 일대다 관계
 //    private List<UserAnswer> userAnswers = new ArrayList<>();
@@ -59,4 +60,6 @@ public class User {
     public void setEmail(String email) {
         this.email = email;
     }
+
+    public Long getUserId() { return this.id; }
 }
