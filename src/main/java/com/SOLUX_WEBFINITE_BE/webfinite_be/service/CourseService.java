@@ -6,6 +6,8 @@ import com.SOLUX_WEBFINITE_BE.webfinite_be.domain.CourseSchedule;
 import com.SOLUX_WEBFINITE_BE.webfinite_be.domain.User;
 import com.SOLUX_WEBFINITE_BE.webfinite_be.dto.FileDTO;
 import com.SOLUX_WEBFINITE_BE.webfinite_be.exception.CourseNotFoundException;
+import com.SOLUX_WEBFINITE_BE.webfinite_be.exception.EmptyFileContentException;
+import com.SOLUX_WEBFINITE_BE.webfinite_be.exception.FileNotFoundException;
 import com.SOLUX_WEBFINITE_BE.webfinite_be.exception.UserNotFoundException;
 import com.SOLUX_WEBFINITE_BE.webfinite_be.reposiroty.CourseRepository;
 import com.SOLUX_WEBFINITE_BE.webfinite_be.reposiroty.FileRepository;
@@ -113,7 +115,7 @@ public class CourseService {
                 .orElseThrow(() -> new CourseNotFoundException());
 
         if(file.isEmpty())
-            throw new IllegalStateException("파일이 비어있습니다.");
+            throw new EmptyFileContentException();
 
         String fileName = file.getOriginalFilename();
 
@@ -152,7 +154,7 @@ public class CourseService {
 
     // 강의 자료 삭제
     public void deleteFile(Long fileId) {
-        CourseFile file = fileRepository.findById(fileId).orElseThrow(() -> new IllegalStateException("파일이 존재하지 않습니다."));
+        CourseFile file = fileRepository.findById(fileId).orElseThrow(() -> new FileNotFoundException());
         fileRepository.delete(file);
     }
 

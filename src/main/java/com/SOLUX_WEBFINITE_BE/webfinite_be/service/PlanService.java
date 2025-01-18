@@ -7,7 +7,8 @@ import com.SOLUX_WEBFINITE_BE.webfinite_be.domain.Prompt;
 import com.SOLUX_WEBFINITE_BE.webfinite_be.dto.PlanDTO;
 import com.SOLUX_WEBFINITE_BE.webfinite_be.dto.SimpleResponse;
 import com.SOLUX_WEBFINITE_BE.webfinite_be.dto.gpt.GeneratePrompt;
-import com.SOLUX_WEBFINITE_BE.webfinite_be.exception.CourseNotFoundException;
+import com.SOLUX_WEBFINITE_BE.webfinite_be.exception.*;
+import com.SOLUX_WEBFINITE_BE.webfinite_be.exception.FileNotFoundException;
 import com.SOLUX_WEBFINITE_BE.webfinite_be.reposiroty.CourseRepository;
 import com.SOLUX_WEBFINITE_BE.webfinite_be.reposiroty.FileRepository;
 import com.SOLUX_WEBFINITE_BE.webfinite_be.reposiroty.PlanRepository;
@@ -42,19 +43,19 @@ public class PlanService {
 
     public PlanDTO getPlan(Long courseId) {
         Course course = courseRepository.findById(courseId).orElseThrow(() -> new CourseNotFoundException());
-        String promptText = promptRepository.findByCourseId(courseId).orElseThrow(() -> new IllegalStateException("프롬프트가 존재하지 않습니다.")).getDescription();
+        // 프롬프트 조회 (없을 경우 기본값 사용)
+        String promptText = promptRepository.findByCourseId(courseId)
+                .map(Prompt::getDescription)
+                .orElse("학습 계획을 작성해주세요.");
+        // 학습 계획 조회 (없을 경우 빈 리스트 반환)
         List<LearningPlan> plans = planRepository.findPlansByCourseId(courseId);
-
-        if(plans.isEmpty()){
-            throw new IllegalStateException("학습 계획이 존재하지 않습니다.");
-        }
 
         return new PlanDTO(promptText, PlanDTO.toPlanDTO(plans));
     }
 
     public SimpleResponse createPlan(Long courseId, String promptText, LocalDate startDate, LocalDate endDate, String startUnit, String endUnit, Long fileId) throws IOException {
         Course course = courseRepository.findById(courseId).orElseThrow(() -> new CourseNotFoundException());
-        CourseFile courseFile = fileRepository.findById(fileId).orElseThrow(() -> new IllegalStateException("파일이 존재하지 않습니다."));
+        CourseFile courseFile = fileRepository.findById(fileId).orElseThrow(() -> new FileNotFoundException());
         String filePath = courseFile.getFilePath();
         File file = new File(filePath);
 
@@ -99,7 +100,7 @@ public class PlanService {
         Course course = courseRepository.findById(courseId).orElseThrow(() -> new CourseNotFoundException());
         List<LearningPlan> learningPlans = planRepository.findPlansByCourseId(courseId);
         if(learningPlans.isEmpty()){
-            throw new IllegalStateException("학습 계획이 존재하지 않습니다.");
+            throw new EmptyPlanListException();
         }
 
         // 학습 계획의 ID를 Set으로 추출
@@ -115,7 +116,7 @@ public class PlanService {
 
         // 데이터베이스에 없는 plan_id가 있는 경우 예외 발생
         if (!invalidPlanIds.isEmpty()) {
-            throw new IllegalArgumentException("존재하지 않는 학습 계획 ID: " + invalidPlanIds);
+            throw new PlanNotFoundException();
         }
 
         // plan_id 기준으로 plans와 learningPlans를 비교하여 수정할 것 수정
