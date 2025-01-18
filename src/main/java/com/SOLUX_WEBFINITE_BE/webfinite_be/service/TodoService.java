@@ -4,7 +4,7 @@ import com.SOLUX_WEBFINITE_BE.webfinite_be.domain.Todo;
 import com.SOLUX_WEBFINITE_BE.webfinite_be.domain.User;
 import com.SOLUX_WEBFINITE_BE.webfinite_be.dto.TodoRequestDto;
 import com.SOLUX_WEBFINITE_BE.webfinite_be.dto.TodoResponseDto;
-import com.SOLUX_WEBFINITE_BE.webfinite_be.exception.TodoNotFoundException;
+import com.SOLUX_WEBFINITE_BE.webfinite_be.exception.*;
 import com.SOLUX_WEBFINITE_BE.webfinite_be.repository.TodoRepository;
 import com.SOLUX_WEBFINITE_BE.webfinite_be.repository.UserRepository;
 import jakarta.transaction.Transactional;
@@ -26,10 +26,18 @@ public class TodoService {
 
     // 사용자 ID로 Todo 항목 조회
     public List<TodoResponseDto> getTodosByUserId(Long userId) {
-        List<Todo> todos = todoRepository.findByUser_Id(userId);
+        // 사용자 존재 여부를 확인하고 예외 처리
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException()); // USER_NOT_FOUND 예외 처리
+
+        // 해당 사용자의 Todo 목록 조회
+        List<Todo> todos = todoRepository.findByUser_Id(user.getId());
+
+        // Todo 목록이 비어있다면 예외 처리
         if (todos.isEmpty()) {
-            throw new TodoNotFoundException("Todo 목록에 항목이 없습니다");
+            throw new TodoListEmptyException(); // TODO_LIST_EMPTY 예외 처리
         }
+
         return todos.stream()
                 .map(TodoResponseDto::new)
                 .collect(Collectors.toList());
@@ -39,7 +47,7 @@ public class TodoService {
     public List<TodoResponseDto> getTodosByUserIdAndDateRange(Long userId, LocalDateTime startDate, LocalDateTime endDate) {
         List<Todo> todos = todoRepository.findTodosByUserIdAndDateRange(userId, startDate, endDate);
         if (todos.isEmpty()) {
-            throw new TodoNotFoundException("조회한 날짜에 Todo항목이 없습니다");
+            throw new TodoDateRangeEmptyException(); // TODO_DATE_RANGE_EMPTY 예외 처리
         }
         return todos.stream()
                 .map(TodoResponseDto::new)
@@ -48,8 +56,11 @@ public class TodoService {
 
     // Todo 추가
     public TodoResponseDto addTodo(TodoRequestDto request) {
+        if (request.getTodoContent().isEmpty()) {
+            throw new EmptyTodoContentException();  // T-001 예외 처리
+        }
         User user = userRepository.findById(request.getUserId())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException());  // U-002 예외 처리
 
         Todo todo = new Todo();
         todo.setTodoContent(request.getTodoContent());
@@ -65,7 +76,7 @@ public class TodoService {
     // Todo 수정
     public TodoResponseDto updateTodo(Long todoId, TodoRequestDto request) {
         Todo todo = todoRepository.findById(todoId)
-                .orElseThrow(() -> new TodoNotFoundException("없는 Todo 항목입니다"));
+                .orElseThrow(() -> new TodoNotFoundException());  // TODO_NOT_FOUND 예외 처리
         todo.setTodoContent(request.getTodoContent());
         todo.setStartDate(request.getStartDate());
         todo.setEndDate(request.getEndDate());
@@ -78,21 +89,21 @@ public class TodoService {
     @Transactional
     public void deleteTodo(Long todoId) {
         todoRepository.findById(todoId)
-                .orElseThrow(() -> new TodoNotFoundException("이미 지워진 항목입니다"));
+                .orElseThrow(() -> new AlreadyDeletedTodoException()); // T-005 예외 처리
         todoRepository.deleteTodo(todoId);
     }
 
     // Todo 조회
     public Todo getTodoById(Long todoId) {
         return todoRepository.findById(todoId)
-                .orElseThrow(() -> new RuntimeException("Todo not found"));
+                .orElseThrow(() -> new TodoNotFoundException());  // TODO_NOT_FOUND 예외 처리
     }
 
     // Todo 완료 상태 업데이트
     @Transactional
     public void updateTodoCompletion(Long todoId, boolean isCompleted) {
         Todo todo = todoRepository.findById(todoId)
-                .orElseThrow(() -> new TodoNotFoundException("Todo 항목이 없습니다"));
+                .orElseThrow(() -> new TodoNotFoundException());  // TODO_NOT_FOUND 예외 처리
         todo.setIsCompleted(isCompleted);
         todoRepository.updateTodoCompletion(todoId, isCompleted);
     }

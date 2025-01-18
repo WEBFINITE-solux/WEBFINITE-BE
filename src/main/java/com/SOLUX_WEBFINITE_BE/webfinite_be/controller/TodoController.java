@@ -3,16 +3,16 @@ package com.SOLUX_WEBFINITE_BE.webfinite_be.controller;
 import com.SOLUX_WEBFINITE_BE.webfinite_be.domain.Todo;
 import com.SOLUX_WEBFINITE_BE.webfinite_be.dto.TodoRequestDto;
 import com.SOLUX_WEBFINITE_BE.webfinite_be.dto.TodoResponseDto;
-import com.SOLUX_WEBFINITE_BE.webfinite_be.exception.TodoContentEmptyException;
+import com.SOLUX_WEBFINITE_BE.webfinite_be.exception.*;
 import com.SOLUX_WEBFINITE_BE.webfinite_be.service.TodoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/todo")
@@ -34,7 +34,7 @@ public class TodoController {
     public ResponseEntity<TodoResponseDto> addTodo(@RequestBody TodoRequestDto request) {
         // null 체크 추가
         if (request == null || request.getTodoContent() == null) {
-            throw new TodoContentEmptyException(); // 예외 발생
+            throw new EmptyTodoContentException(); // 예외 발생
         }
 
         // 추가된 Todo 객체를 응답 DTO로 반환
@@ -84,8 +84,33 @@ public class TodoController {
         return ResponseEntity.ok(new TodoResponseDto(updatedTodo));
     }
 
-    @ExceptionHandler(TodoContentEmptyException.class)
-    public ResponseEntity<String> handleTodoContentEmptyException(TodoContentEmptyException ex) {
+    @ExceptionHandler(EmptyTodoContentException.class)
+    public ResponseEntity<String> handleTodoContentEmptyException(EmptyTodoContentException ex) {
         return ResponseEntity.badRequest().body(ex.getErrorCode().getMessage());
+    }
+
+    @ExceptionHandler(TodoNotFoundException.class)
+    public ResponseEntity<String> handleTodoNotFoundException(TodoNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getErrorCode().getMessage());
+    }
+
+    @ExceptionHandler(AlreadyDeletedTodoException.class)
+    public ResponseEntity<String> handleAlreadyDeletedTodoException(AlreadyDeletedTodoException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getErrorCode().getMessage());
+    }
+
+    @ExceptionHandler(TodoDateRangeEmptyException.class)
+    public ResponseEntity<String> handleTodoDateRangeEmptyException(TodoDateRangeEmptyException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getErrorCode().getMessage());
+    }
+
+    @ExceptionHandler(TodoListEmptyException.class)
+    public ResponseEntity<String> handleTodoListEmptyException(TodoListEmptyException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getErrorCode().getMessage());
+    }
+
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<String> handleUserNotFoundException(UserNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getErrorCode().getMessage());
     }
 }
