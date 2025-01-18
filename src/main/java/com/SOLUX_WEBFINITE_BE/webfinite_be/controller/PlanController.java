@@ -24,17 +24,11 @@ public class PlanController {
 
     @GetMapping("/{courseId}")
     public PlanDTO getPlan(@PathVariable("courseId") Long courseId) {
-        if(courseId == null){
-            throw new IllegalStateException("강의 정보가 없습니다.");
-        }
         return planService.getPlan(courseId);
     }
 
     @PostMapping("/{courseId}/new")
     public SimpleResponse createPlan(@PathVariable("courseId") Long courseId, @RequestBody CreatePlanRequest request) throws IOException, URISyntaxException {
-        if(courseId == null){
-            throw new IllegalStateException("강의 정보가 없습니다.");
-        }
         if(request == null){
             throw new IllegalStateException("학습 계획 정보가 없습니다.");
         }
@@ -43,9 +37,6 @@ public class PlanController {
 
     @PatchMapping("{courseId}/update")
     public SimpleResponse updatePlan(@PathVariable("courseId") Long courseId, @RequestBody PlanDTO plans){
-        if(courseId == null){
-            throw new IllegalStateException("강의 정보가 없습니다.");
-        }
         return planService.updatePlan(courseId, plans);
     }
 
