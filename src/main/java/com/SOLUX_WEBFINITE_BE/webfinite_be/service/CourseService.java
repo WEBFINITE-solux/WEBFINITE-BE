@@ -8,6 +8,7 @@ import com.SOLUX_WEBFINITE_BE.webfinite_be.dto.FileDTO;
 import com.SOLUX_WEBFINITE_BE.webfinite_be.exception.CourseNotFoundException;
 import com.SOLUX_WEBFINITE_BE.webfinite_be.exception.UserNotFoundException;
 import com.SOLUX_WEBFINITE_BE.webfinite_be.reposiroty.CourseRepository;
+import com.SOLUX_WEBFINITE_BE.webfinite_be.reposiroty.FileRepository;
 import com.SOLUX_WEBFINITE_BE.webfinite_be.reposiroty.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -27,6 +28,7 @@ import java.util.*;
 public class CourseService {
     private final CourseRepository courseRepository;
     private final UserRepository userRepository;
+    private final FileRepository fileRepository;
 
     // 강의 등록
     @Transactional
@@ -54,7 +56,7 @@ public class CourseService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException());
 
-        return courseRepository.findThisSemester(user.getId(), year, semester);
+        return courseRepository.findByUserIdAndYearAndSemester(user.getId(), year, semester);
     }
 
     private void validateSchedule(List<CourseSchedule> schedules) {
@@ -131,7 +133,7 @@ public class CourseService {
 
         course.addFile(courseFile);
 
-        courseRepository.save(courseFile);
+        fileRepository.save(courseFile);
 
         return new FileDTO( courseFile.getId(), courseFile.getOriginalFilename());
     }
@@ -141,7 +143,7 @@ public class CourseService {
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new CourseNotFoundException());
 
-        List<CourseFile> files = courseRepository.findFilesByCourseId(courseId);
+        List<CourseFile> files = fileRepository.findByCourseId(courseId);
 
         return files.stream()
                 .map(file -> new FileDTO(file.getId(), file.getOriginalFilename()))
@@ -150,8 +152,8 @@ public class CourseService {
 
     // 강의 자료 삭제
     public void deleteFile(Long fileId) {
-        CourseFile file = courseRepository.findFileById(fileId).orElseThrow(() -> new IllegalStateException("파일이 존재하지 않습니다."));
-        courseRepository.delete(file);
+        CourseFile file = fileRepository.findById(fileId).orElseThrow(() -> new IllegalStateException("파일이 존재하지 않습니다."));
+        fileRepository.delete(file);
     }
 
     // 시간대 중복 체크
