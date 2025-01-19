@@ -76,7 +76,7 @@ public class CourseController {
         try {
             return courseService.uploadFile(courseId, file);
         } catch (IOException e) {
-            throw new IllegalStateException("파일 업로드에 실해했습니다.");
+            throw new IllegalStateException("파일 업로드에 실패했습니다.");
         }
     }
 
