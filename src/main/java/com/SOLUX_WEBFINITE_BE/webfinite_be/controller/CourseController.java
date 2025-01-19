@@ -69,9 +69,9 @@ public class CourseController {
         if(file.isEmpty() || file == null){
             throw new IllegalStateException("파일이 비어있습니다.");
         }
-        // pdf 파일만 업로드 가능
-        if(!file.getContentType().equals("application/pdf")){
-            throw new IllegalStateException("pdf 파일만 업로드 가능합니다.");
+        // pdf, txt 파일만 업로드 가능
+        if(!file.getContentType().equals("application/pdf") && !file.getContentType().equals("text/plain")){
+            throw new IllegalStateException("pdf 파일 또는 txt 파일만 업로드 가능합니다.");
         }
         try {
             return courseService.uploadFile(courseId, file);

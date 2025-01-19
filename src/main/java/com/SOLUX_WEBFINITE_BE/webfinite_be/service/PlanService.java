@@ -60,8 +60,25 @@ public class PlanService {
         File file = new File(filePath);
 
         Prompt prompt = Prompt.createPrompt(startDate, endDate, startUnit, endUnit, promptText);
+        String getText = "";
 
-        String getText = pdfToText(file);
+        // 파일이 pdf면 텍스트 추출, txt면 그대로 읽기
+        if(file.getName().endsWith(".txt")){
+            BufferedReader br = new BufferedReader(new FileReader(file));
+            StringBuilder sb = new StringBuilder();
+            String line;
+            while((line = br.readLine()) != null){
+                sb.append(line);
+            }
+            br.close();
+            getText = sb.toString();
+        }
+        else if(file.getName().endsWith(".pdf")){
+            getText = pdfToText(file);
+        }
+        else {
+            throw new IOException("지원하지 않는 파일 형식입니다.");
+        }
 
         String requestPrompt = GeneratePrompt.createPlanPrompt(course.getTitle(), startDate.toString(), endDate.toString(), startUnit, endUnit, promptText, getText);
 
