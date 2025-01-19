@@ -19,6 +19,8 @@ public class SecurityConfig {
         http.authorizeHttpRequests(authz -> authz
                 .requestMatchers("/h2-console/**").permitAll()  // H2 콘솔 경로는 인증 없이 접근 가능
                 .requestMatchers("/todo/**").permitAll()  // /todo 경로는 인증 없이 접근 가능
+                .requestMatchers("/course/**").permitAll()  // course 경로는 인증 없이 접근 가능
+                .requestMatchers("/plan/**").permitAll()  // plan 경로는 인증 없이 접근 가능
                 .anyRequest().authenticated()  // 나머지 요청은 인증 필요
         );
 
