@@ -13,18 +13,29 @@ spring:
   jpa:
     hibernate:
       ddl-auto: create
+    database-platform: org.hibernate.dialect.H2Dialect
     properties:
       hibernate:
         show_sql: true
         format_sql: true
 
+  h2:
+    console:
+      enabled: true
+
 server:
   tomcat:
     max-swallow-size: 10MB
 
-logging.level:
-  org.hibernate.SQL: debug
-  org.hibernate.orm.jdbc.bind: trace #스프링 부트 3.x, hibernate6
+logging:
+  level:
+    org:
+      springframework: DEBUG
+      hibernate.SQL: debug
+    com:
+      SOLUX_WEBFINITE_BE:
+        webfinite_be: DEBUG
+    org.hibernate.orm.jdbc.bind: trace # 스프링 부트 3.x, Hibernate 6
 
 openai:
   model: gpt-4o
