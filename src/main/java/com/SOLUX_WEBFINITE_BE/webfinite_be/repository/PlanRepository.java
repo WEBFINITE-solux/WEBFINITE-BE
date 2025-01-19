@@ -1,4 +1,4 @@
-package com.SOLUX_WEBFINITE_BE.webfinite_be.reposiroty;
+package com.SOLUX_WEBFINITE_BE.webfinite_be.repository;
 
 import com.SOLUX_WEBFINITE_BE.webfinite_be.domain.LearningPlan;
 import com.SOLUX_WEBFINITE_BE.webfinite_be.domain.Prompt;

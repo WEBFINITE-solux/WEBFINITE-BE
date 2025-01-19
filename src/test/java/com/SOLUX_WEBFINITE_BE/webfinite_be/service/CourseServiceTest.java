@@ -2,7 +2,7 @@ package com.SOLUX_WEBFINITE_BE.webfinite_be.service;
 
 import com.SOLUX_WEBFINITE_BE.webfinite_be.domain.CourseSchedule;
 import com.SOLUX_WEBFINITE_BE.webfinite_be.domain.User;
-import com.SOLUX_WEBFINITE_BE.webfinite_be.reposiroty.CourseRepository;
+import com.SOLUX_WEBFINITE_BE.webfinite_be.repository.CourseRepository;
 import com.SOLUX_WEBFINITE_BE.webfinite_be.reposiroty.UserRepository;
 import org.junit.Test;
 import org.junit.runner.RunWith;
