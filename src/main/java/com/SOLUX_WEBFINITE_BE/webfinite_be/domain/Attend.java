@@ -2,12 +2,14 @@ package com.SOLUX_WEBFINITE_BE.webfinite_be.domain;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.Setter;
 import org.springframework.boot.context.properties.bind.DefaultValue;
 
 import java.time.LocalDate;
 
 @Entity
 @Getter
+@Setter
 public class Attend {
 
     @Id
