@@ -33,6 +33,9 @@ public enum ErrorCode {
     // P - Prompt 관련 에러 코드
     NOT_EXISTS_PROMPT(HttpStatus.NOT_FOUND, "P-001", "존재하지 않는 프롬프트입니다."),
 
+    // S - Summary 관련 에러 코드
+    SUMMARY_NOT_FOUND(HttpStatus.NOT_FOUND, "S-001", "요약 내용을 찾을 수 없습니다."),
+
     // T - Todo 관련 에러 코드
     EMPTY_TODO_CONTENT(HttpStatus.BAD_REQUEST, "T-001", "할 일 내용이 비어 있습니다."),
     TODO_NOT_FOUND(HttpStatus.NOT_FOUND, "'T-002", "할 일을 찾을 수 없습니다."),
