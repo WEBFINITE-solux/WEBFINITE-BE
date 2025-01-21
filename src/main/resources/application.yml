@@ -41,3 +41,6 @@ openai:
   model: gpt-4o
   key: ${OPENAI_API_KEY}
   url: https://api.openai.com/v1/chat/completions # gpt-4o 엔드포인트
+
+jwt:
+  secret: a6890141797952c3b0d2a1e4f24665417ee1df7b74a7d82af54886894321298e
