@@ -29,4 +29,9 @@ public class UserProfile {
 //        user.getUser().add(this);
 //    }
 
+    // == 비즈니스 메서드 == //
+    public void setIcon(Icon icon) {
+        this.icon = icon;
+    }
+
 }
