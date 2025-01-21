@@ -49,8 +49,9 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL) // User와 Attend는 일대다 관계
     private List<Attend> attends = new ArrayList<>();
 
-//    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL) // User와 Todo는 일대다 관계
-//    private List<Todo> todos = new ArrayList<>();
+//
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL) // User와 Todo는 일대다 관계
+    private List<Todo> todos = new ArrayList<>();
 //
 //    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL) // User와 UserAnswer는 일대다 관계
 //    private List<UserAnswer> userAnswers = new ArrayList<>();
@@ -72,6 +73,8 @@ public class User implements UserDetails {
     public void setEmail(String email) {
         this.email = email;
     }
+
+    public Long getUserId() { return this.id; }
 
     // == 로그인 시 사용 == //
     @ElementCollection(fetch = FetchType.EAGER)

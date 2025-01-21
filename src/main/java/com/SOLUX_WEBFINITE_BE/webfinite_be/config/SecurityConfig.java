@@ -16,6 +16,7 @@ import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 
@@ -28,22 +29,34 @@ public class SecurityConfig {
     private final JwtLogoutService jwtLogoutService;
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
-        httpSecurity
-                // REST API이므로 basic auth 및 csrf 보안을 비활성화
-                .csrf(csrf -> csrf.disable())
-                // JWT를 사용하기 때문에 세션 비활성화
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                // URL에 대한 권한 설정
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/members/sign-in").permitAll()
-                        .requestMatchers("/user/logout").permitAll()
-                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**").permitAll() // 스웨거 허용
-                        .anyRequest().permitAll()  // 나머지 모든 요청을 인증 없이 허가
-                )
-                // JWT 필터 설정
-                .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider, jwtLogoutService), UsernamePasswordAuthenticationFilter.class); // 생성자 수정
-        return httpSecurity.build();
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        // CSRF 보호 비활성화
+        http.csrf(csrf -> csrf.disable());
+        // JWT를 사용하기 때문에 세션 비활성화
+        http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        // H2 콘솔 접근 허용
+        http.authorizeHttpRequests(authz -> authz
+                .requestMatchers("/h2-console/**").permitAll()  // H2 콘솔 경로는 인증 없이 접근 가능
+                .requestMatchers("/todo/**").permitAll()  // /todo 경로는 인증 없이 접근 가능
+                .requestMatchers("/course/**").permitAll()  // course 경로는 인증 없이 접근 가능
+                .requestMatchers("/plan/**").permitAll()  // plan 경로는 인증 없이 접근 가능
+                .requestMatchers("/summary/**").permitAll()  // summary 경로는 인증 없이 접근 가능
+                .requestMatchers("/members/sign-in").permitAll() // 로그인 인증 없이 접근 가능
+                .requestMatchers("/user/logout").permitAll() // 로그아웃 인증 없이 접근 가능
+                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**").permitAll() // 스웨거 인증 없이 접근 허용
+//                .anyRequest().authenticated()  // 나머지 요청은 인증 필요
+                .anyRequest().permitAll()  // 나머지 모든 요청을 인증 없이 허가
+        );
+
+        // JWT 필터 설정
+        http.addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider, jwtLogoutService), UsernamePasswordAuthenticationFilter.class); // 생성자 수정
+
+        // X-Frame-Options 설정: 동일 도메인에서만 iframe을 통해 로드 가능
+        http.headers(headers -> headers
+                .frameOptions(frameOptions -> frameOptions.sameOrigin())
+        );
+
+        return http.build();
     }
 
     @Bean
