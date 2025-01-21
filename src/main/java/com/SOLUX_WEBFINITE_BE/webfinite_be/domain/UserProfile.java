@@ -29,9 +29,4 @@ public class UserProfile {
         this.icon = icon;
     }
 
-    // == 비즈니스 메서드 == //
-    public void setIcon(Icon icon) {
-        this.icon = icon;
-    }
-
 }

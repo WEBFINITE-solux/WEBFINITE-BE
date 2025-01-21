@@ -33,7 +33,7 @@ public class SecurityConfig {
         // CSRF 보호 비활성화
         http.csrf(csrf -> csrf.disable());
         // JWT를 사용하기 때문에 세션 비활성화
-        http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         // H2 콘솔 접근 허용
         http.authorizeHttpRequests(authz -> authz
                 .requestMatchers("/h2-console/**").permitAll()  // H2 콘솔 경로는 인증 없이 접근 가능
