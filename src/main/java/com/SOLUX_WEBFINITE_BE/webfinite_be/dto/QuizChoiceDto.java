@@ -10,5 +10,6 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class QuizChoiceDto {
+    private Long choiceId;
     private String choiceContent;  // 선택지 내용
 }

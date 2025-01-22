@@ -128,13 +128,14 @@ public class QuizService {
                         .map(q -> new QuestionDetailDto(
                                 q.getQuestionId(),
                                 q.getQuestionContent(),
-                                q.getQuizChoices() != null ? q.getQuizChoices().stream()  // getQuizChoices() 사용
-                                        .map(choice -> new QuizChoiceDto(choice.getChoiceContent()))  // QuizChoiceDto 생성자 사용
-                                        .collect(Collectors.toList()) : Collections.emptyList(), // 선택지가 없을 경우 빈 리스트
+                                q.getQuizChoices() != null ? q.getQuizChoices().stream()
+                                        .map(choice -> new QuizChoiceDto(null, choice.getChoiceContent()))  // choiceId는 null로 설정
+                                        .collect(Collectors.toList()) : Collections.emptyList(),
                                 q.getAnswer(),
                                 q.getExplanation()
                         ))
                         .collect(Collectors.toList())
+
         );
 
 
