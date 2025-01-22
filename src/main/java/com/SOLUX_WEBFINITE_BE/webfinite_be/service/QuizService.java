@@ -273,6 +273,7 @@ public class QuizService {
         Quiz quiz = quizRepository.findById(quizId)
                 .orElseThrow(() -> new QuizNotFoundException());
 
+
         // 사용자 답안 삭제
         List<UserAnswer> userAnswers = userAnswerRepository.findByQuiz(quiz);
         if (!userAnswers.isEmpty()) {

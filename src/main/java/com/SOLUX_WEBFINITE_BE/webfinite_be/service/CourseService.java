@@ -149,20 +149,25 @@ public class CourseService {
                 .toList();
     }
 
-    // 강의 자료 조회 (강의명과 파일명 매칭)
-    public List<Map<String, Object>> getCourseFilesWithCourseName(Long courseId) {
-        Course course = courseRepository.findById(courseId)
-                .orElseThrow(() -> new CourseNotFoundException());
+    // 사용자 ID를 기반으로 해당 사용자가 수강하는 강의와 그에 대한 파일 정보를 조회
+    public List<Map<String, Object>> getCourseFilesWithCourseName(Long userId) {
+        // 1. 사용자가 수강하는 강의 리스트를 조회
+        List<Course> courses = courseRepository.findCoursesByUserId(userId);  // 사용자 ID를 기준으로 강의 리스트 조회
 
-        List<CourseFile> files = courseRepository.findFilesByCourseId(courseId);
+        // 2. 각 강의에 대해 해당 강의의 파일 리스트를 조회
+        return courses.stream()
+                .flatMap(course -> {
+                    // 강의에 해당하는 파일 리스트 조회
+                    List<CourseFile> files = courseRepository.findFilesByCourseId(course.getId());
 
-        return files.stream()
-                .map(file -> {
-                    Map<String, Object> courseFileInfo = new HashMap<>();
-                    courseFileInfo.put("courseName", course.getTitle());
-                    courseFileInfo.put("fileName", file.getOriginalFilename());
-                    courseFileInfo.put("fileId", file.getId()); // Include file ID for selection
-                    return courseFileInfo;
+                    // 파일 정보를 강의명과 함께 매핑
+                    return files.stream().map(file -> {
+                        Map<String, Object> courseFileInfo = new HashMap<>();
+                        courseFileInfo.put("courseName", course.getTitle());  // 강의명
+                        courseFileInfo.put("fileName", file.getOriginalFilename());  // 파일명
+                        courseFileInfo.put("fileId", file.getId());  // 파일 ID
+                        return courseFileInfo;
+                    });
                 })
                 .collect(Collectors.toList());
     }

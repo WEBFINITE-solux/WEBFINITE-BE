@@ -86,5 +86,13 @@ public class CourseRepository {
                 .findFirst();
     }
 
+    // 사용자 ID를 기준으로 수강 중인 강의 리스트 조회
+    public List<Course> findCoursesByUserId(Long userId) {
+        return em.createQuery("select c from Course c where c.user.id = :userId", Course.class)
+                .setParameter("userId", userId)
+                .getResultList();
+    }
+
+
 
 }
