@@ -2,12 +2,14 @@ package com.SOLUX_WEBFINITE_BE.webfinite_be.domain;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Getter
+@Setter
 public class QuizQuestion {
 
     @Id
@@ -15,31 +17,28 @@ public class QuizQuestion {
     private Long questionId;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private QuestionType questionType;
 
-    @Column(length = 255)
+    @Column(length = 255, nullable = false)
     private String questionContent;
 
-    @Column(length = 100)
+    @Column(length = 100, nullable = false)
     private String answer;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(columnDefinition = "TEXT", nullable = true)
     private String explanation;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "quiz_id", nullable = false)
     private Quiz quiz;
 
-    // QuizChoice와의 양방향 관계
     @OneToMany(mappedBy = "quizQuestion", cascade = CascadeType.ALL, orphanRemoval = true)
-    
     private List<QuizChoice> quizChoices = new ArrayList<>();
 
-    // UserAnswer와의 양방향 관계
     @OneToMany(mappedBy = "quizQuestion", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UserAnswer> userAnswers = new ArrayList<>();
 
-    // 연관 관계 메서드
     public void addQuizChoice(QuizChoice quizChoice) {
         quizChoices.add(quizChoice);
         quizChoice.setQuizQuestion(this);
@@ -52,5 +51,9 @@ public class QuizQuestion {
 
     public void setQuiz(Quiz quiz) {
         this.quiz = quiz;
+        if (!quiz.getQuizQuestions().contains(this)) {
+            quiz.getQuizQuestions().add(this);
+        }
     }
+
 }

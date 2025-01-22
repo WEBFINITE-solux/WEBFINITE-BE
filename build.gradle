@@ -41,6 +41,13 @@ dependencies {
 
 	//Spring Security: BCryptPasswordEncoder (비밀번호 암호화) 사용
 	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.springframework.boot:spring-boot-devtools'
+
+	implementation 'org.apache.pdfbox:pdfbox:2.0.29'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.json:json:20210307'  // JSONObject 클래스를 포함하는 라이브러리
+	implementation 'org.apache.commons:commons-text:1.9'
+
 }
 
 tasks.named('test') {

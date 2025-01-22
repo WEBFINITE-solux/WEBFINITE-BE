@@ -87,4 +87,9 @@ public class Course {
 
         return course;
     }
+
+    // 추가: 강의명 반환 메서드
+    public String getCourseName() {
+        return this.title;  // title 필드 값 반환
+    }
 }
