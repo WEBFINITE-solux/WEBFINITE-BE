@@ -21,7 +21,7 @@ public class QuizQuestion {
     @Column(nullable = false)
     private QuestionType questionType;
 
-    @Column(length = 255, nullable = false)
+    @Column(length = 500, nullable = false)
     private String questionContent;
 
     @Column(length = 500, nullable = false)

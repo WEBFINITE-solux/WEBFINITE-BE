@@ -6,8 +6,11 @@ import com.SOLUX_WEBFINITE_BE.webfinite_be.domain.CourseSchedule;
 import com.SOLUX_WEBFINITE_BE.webfinite_be.domain.User;
 import com.SOLUX_WEBFINITE_BE.webfinite_be.dto.FileDTO;
 import com.SOLUX_WEBFINITE_BE.webfinite_be.exception.CourseNotFoundException;
+import com.SOLUX_WEBFINITE_BE.webfinite_be.exception.EmptyFileContentException;
+import com.SOLUX_WEBFINITE_BE.webfinite_be.exception.FileNotFoundException;
 import com.SOLUX_WEBFINITE_BE.webfinite_be.exception.UserNotFoundException;
 import com.SOLUX_WEBFINITE_BE.webfinite_be.repository.CourseRepository;
+import com.SOLUX_WEBFINITE_BE.webfinite_be.repository.FileRepository;
 import com.SOLUX_WEBFINITE_BE.webfinite_be.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -28,6 +31,7 @@ import java.util.stream.Collectors;
 public class CourseService {
     private final CourseRepository courseRepository;
     private final UserRepository userRepository;
+    private final FileRepository fileRepository;
 
     // 강의 등록
     @Transactional
@@ -55,7 +59,7 @@ public class CourseService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException());
 
-        return courseRepository.findThisSemester(user.getId(), year, semester);
+        return courseRepository.findByUserIdAndYearAndSemester(user.getId(), year, semester);
     }
 
     private void validateSchedule(List<CourseSchedule> schedules) {
@@ -112,7 +116,7 @@ public class CourseService {
                 .orElseThrow(() -> new CourseNotFoundException());
 
         if(file.isEmpty())
-            throw new IllegalStateException("파일이 비어있습니다.");
+            throw new EmptyFileContentException();
 
         String fileName = file.getOriginalFilename();
 
@@ -132,7 +136,7 @@ public class CourseService {
 
         course.addFile(courseFile);
 
-        courseRepository.save(courseFile);
+        fileRepository.save(courseFile);
 
         return new FileDTO( courseFile.getId(), courseFile.getOriginalFilename());
     }
@@ -142,41 +146,17 @@ public class CourseService {
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new CourseNotFoundException());
 
-        List<CourseFile> files = courseRepository.findFilesByCourseId(courseId);
+        List<CourseFile> files = fileRepository.findByCourseId(courseId);
 
         return files.stream()
                 .map(file -> new FileDTO(file.getId(), file.getOriginalFilename()))
                 .toList();
     }
 
-    // 사용자 ID를 기반으로 해당 사용자가 수강하는 강의와 그에 대한 파일 정보를 조회
-    public List<Map<String, Object>> getCourseFilesWithCourseName(Long userId) {
-        userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException());
-        // 1. 사용자가 수강하는 강의 리스트를 조회
-        List<Course> courses = courseRepository.findByCourse_UserId(userId);  // 사용자 ID를 기준으로 강의 리스트 조회
-
-        // 만약 사용자가 수강하는 강의가 없다면 예외 처리
-        if (courses.isEmpty()) {
-            throw new CourseNotFoundException();
-        }
-
-        // 2. 각 강의에 대해 해당 강의의 파일 리스트를 조회
-        return courses.stream()
-                .flatMap(course -> {
-                    // 강의에 해당하는 파일 리스트 조회
-                    List<CourseFile> files = courseRepository.findFilesByCourseId(course.getId());
-
-                    // 파일 정보를 강의명과 함께 매핑
-                    return files.stream().map(file -> {
-                        Map<String, Object> courseFileInfo = new HashMap<>();
-                        courseFileInfo.put("courseName", course.getTitle());  // 강의명
-                        courseFileInfo.put("fileName", file.getOriginalFilename());  // 파일명
-                        courseFileInfo.put("fileId", file.getId());  // 파일 ID
-                        return courseFileInfo;
-                    });
-                })
-                .collect(Collectors.toList());
+    // 강의 자료 삭제
+    public void deleteFile(Long fileId) {
+        CourseFile file = fileRepository.findById(fileId).orElseThrow(() -> new FileNotFoundException());
+        fileRepository.delete(file);
     }
 
     // 시간대 중복 체크
@@ -211,6 +191,36 @@ public class CourseService {
         // 일반적인 겹침 조건
         return (newSchedule.getStartTime().isBefore(existingSchedule.getEndTime()) &&
                 newSchedule.getEndTime().isAfter(existingSchedule.getStartTime()));
+    }
+
+    // 사용자 ID를 기반으로 해당 사용자가 수강하는 강의와 그에 대한 파일 정보를 조회
+    public List<Map<String, Object>> getCourseFilesWithCourseName(Long userId) {
+        userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException());
+        // 1. 사용자가 수강하는 강의 리스트를 조회
+        List<Course> courses = courseRepository.findByUserId(userId);  // 사용자 ID를 기준으로 강의 리스트 조회
+
+        // 만약 사용자가 수강하는 강의가 없다면 예외 처리
+        if (courses.isEmpty()) {
+            throw new CourseNotFoundException();
+        }
+
+        // 2. 각 강의에 대해 해당 강의의 파일 리스트를 조회
+        return courses.stream()
+                .flatMap(course -> {
+                    // 강의에 해당하는 파일 리스트 조회
+                    List<CourseFile> files = fileRepository.findByCourseId(course.getId());
+
+                    // 파일 정보를 강의명과 함께 매핑
+                    return files.stream().map(file -> {
+                        Map<String, Object> courseFileInfo = new HashMap<>();
+                        courseFileInfo.put("courseName", course.getTitle());  // 강의명
+                        courseFileInfo.put("fileName", file.getOriginalFilename());  // 파일명
+                        courseFileInfo.put("fileId", file.getId());  // 파일 ID
+                        return courseFileInfo;
+                    });
+                })
+                .collect(Collectors.toList());
     }
 
 }

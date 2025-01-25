@@ -7,6 +7,7 @@ import com.SOLUX_WEBFINITE_BE.webfinite_be.domain.QuizQuestion;
 import com.SOLUX_WEBFINITE_BE.webfinite_be.domain.UserAnswer;
 import com.SOLUX_WEBFINITE_BE.webfinite_be.dto.DetailedResultDto;
 import com.SOLUX_WEBFINITE_BE.webfinite_be.dto.QuizResultResponseDto;
+import com.SOLUX_WEBFINITE_BE.webfinite_be.exception.EmptyUserAnswerException;
 import com.SOLUX_WEBFINITE_BE.webfinite_be.exception.QuizNotFoundException;
 import com.SOLUX_WEBFINITE_BE.webfinite_be.repository.QuizChoiceRepository;
 import com.SOLUX_WEBFINITE_BE.webfinite_be.repository.QuizQuestionRepository;
@@ -47,6 +48,10 @@ public class QuizResultService {
 
         // 해당 퀴즈에 대한 사용자 답변을 가져옵니다.
         List<UserAnswer> userAnswers = userAnswerRepository.findByQuiz_QuizId(quizId);
+
+        if (userAnswers.isEmpty()) {
+            throw new EmptyUserAnswerException();
+        }
 
         // 주관식 문제의 정답 여부를 유사도 기준으로 계산합니다.
         int correctCount = (int) userAnswers.stream()

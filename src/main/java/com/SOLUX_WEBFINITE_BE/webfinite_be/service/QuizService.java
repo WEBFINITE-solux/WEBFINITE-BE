@@ -29,6 +29,7 @@ public class QuizService {
     private final OpenAIService openAIService;
     private final QuizResultService quizResultService;
     private final QuizChoiceRepository quizChoiceRepository;
+    private final FileRepository fileRepository;
 
     @Autowired
     public QuizService(UserRepository userRepository,
@@ -38,7 +39,7 @@ public class QuizService {
                        UserAnswerRepository userAnswerRepository,
                        QuizResultService quizResultService,
                        QuizChoiceRepository quizChoiceRepository,
-                       @Lazy OpenAIService openAIService) {
+                       @Lazy OpenAIService openAIService, FileRepository fileRepository) {
         this.userRepository = userRepository;
         this.quizRepository = quizRepository;
         this.quizQuestionRepository = quizQuestionRepository;
@@ -47,6 +48,7 @@ public class QuizService {
         this.quizResultService = quizResultService;
         this.quizChoiceRepository = quizChoiceRepository;
         this.openAIService = openAIService;
+        this.fileRepository = fileRepository;
     }
 
 
@@ -90,7 +92,7 @@ public class QuizService {
     // 2. 강의 자료를 기반으로 퀴즈 생성
     @Transactional
     public QuizDetailResponseDto createQuizFromFile(Long courseId, Long fileId, QuizRequestDto quizRequestDto) {
-        CourseFile selectedFile = courseRepository.findFileById(fileId)
+        CourseFile selectedFile = fileRepository.findFileById(fileId)
                 .orElseThrow(() -> new IllegalArgumentException("유효하지 않은 파일 ID입니다."));
 
         if (!selectedFile.getCourse().getId().equals(courseId)) {

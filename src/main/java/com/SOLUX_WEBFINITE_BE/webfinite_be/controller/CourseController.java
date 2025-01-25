@@ -3,6 +3,7 @@ package com.SOLUX_WEBFINITE_BE.webfinite_be.controller;
 import com.SOLUX_WEBFINITE_BE.webfinite_be.domain.Course;
 import com.SOLUX_WEBFINITE_BE.webfinite_be.domain.CourseSchedule;
 import com.SOLUX_WEBFINITE_BE.webfinite_be.dto.FileDTO;
+import com.SOLUX_WEBFINITE_BE.webfinite_be.dto.SimpleResponse;
 import com.SOLUX_WEBFINITE_BE.webfinite_be.service.CourseService;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.Valid;
@@ -28,9 +29,6 @@ public class CourseController {
 
     @GetMapping("/{userId}")
     public CourseListResponse courseList(@PathVariable("userId") Long id, @RequestBody @Valid CourseListRequest request){
-        if(id == null){
-            throw new IllegalStateException("사용자 정보가 없습니다.");
-        }
         if(request == null){
             throw new IllegalStateException("학기 정보가 없습니다.");
         }
@@ -42,9 +40,6 @@ public class CourseController {
 
     @GetMapping("/table/{userId}")
     public CourseScheduleResponse courseTable(@PathVariable("userId") Long id, @RequestBody @Valid CourseListRequest request){
-        if(id == null){
-            throw new IllegalStateException("사용자 정보가 없습니다.");
-        }
         if(request == null){
             throw new IllegalStateException("학기 정보가 없습니다.");
         }
@@ -54,50 +49,42 @@ public class CourseController {
 
     @PostMapping("/{userId}/new")
     public createCourseResponse saveCourse(@PathVariable("userId") Long id, @RequestBody @Valid createCourseRequest request){
-        if(id == null){
-            throw new IllegalStateException("사용자 정보가 없습니다.");
-        }
-
         Long courseId = courseService.saveCourse(id, request.getTitle(), request.getPeriod(), request.getYear(), request.getSemester(), request.getColor(), request.toCourseSchedule());
         return new createCourseResponse(courseId);
     }
 
     @DeleteMapping("/{courseId}/delete")
-    public void deleteCourse(@PathVariable("courseId") Long courseId){
-        if(courseId == null){
-            throw new IllegalStateException("강의 정보가 없습니다.");
-        }
-
+    public SimpleResponse deleteCourse(@PathVariable("courseId") Long courseId){
         courseService.deleteCourse(courseId);
+        return new SimpleResponse("강의 삭제 완료");
     }
 
     @GetMapping("/file/{courseId}")
     public FileListResponse getCourseFiles(@PathVariable("courseId") Long courseId){
-        if(courseId == null){
-            throw new IllegalStateException("강의 정보가 없습니다.");
-        }
-
         List<FileDTO> files = courseService.getCourseFiles(courseId);
         return new FileListResponse(files);
     }
 
     @PostMapping("/file/{courseId}/upload")
     public FileDTO uploadFile(@PathVariable("courseId") Long courseId, MultipartFile file){
-        if(courseId == null){
-            throw new IllegalStateException("강의 정보가 없습니다.");
-        }
         if(file.isEmpty() || file == null){
             throw new IllegalStateException("파일이 비어있습니다.");
         }
-        // pdf 파일만 업로드 가능
-        if(!file.getContentType().equals("application/pdf")){
-            throw new IllegalStateException("pdf 파일만 업로드 가능합니다.");
+        // pdf, txt 파일만 업로드 가능
+        if(!file.getContentType().equals("application/pdf") && !file.getContentType().equals("text/plain")){
+            throw new IllegalStateException("pdf 파일 또는 txt 파일만 업로드 가능합니다.");
         }
         try {
             return courseService.uploadFile(courseId, file);
         } catch (IOException e) {
-            throw new IllegalStateException("파일 업로드에 실해했습니다.");
+            throw new IllegalStateException("파일 업로드에 실패했습니다.");
         }
+    }
+
+    @DeleteMapping("/file/{fileId}/delete")
+    public SimpleResponse deleteFile(@PathVariable("fileId") Long fileId){
+        courseService.deleteFile(fileId);
+        return new SimpleResponse("강의 자료 삭제 완료");
     }
 
     // 사용자 ID를 기반으로 수강 중인 강의와 그에 해당하는 파일 리스트 조회
