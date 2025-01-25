@@ -9,7 +9,7 @@ import java.util.List;
 
 @Repository
 public interface QuizQuestionRepository extends JpaRepository<QuizQuestion, Long> {
-    List<QuizQuestion> findByQuizId(Long quizId); // 특정 퀴즈의 질문들 가져오기
+    List<QuizQuestion> findByQuiz_QuizId(Long quizId); // 특정 퀴즈의 질문들 가져오기
 
     List<QuizQuestion> findByQuiz(Quiz quiz);
 

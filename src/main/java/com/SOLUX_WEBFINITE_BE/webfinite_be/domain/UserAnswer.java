@@ -5,6 +5,12 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Entity
+@Table(
+        name = "user_answers",
+        uniqueConstraints = @UniqueConstraint(
+                columnNames = {"user_id", "quiz_id", "question_id"}
+        )
+)
 @Getter
 @Setter
 public class UserAnswer {

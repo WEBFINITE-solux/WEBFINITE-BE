@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
+@Table(name = "courses")
 @Getter @Setter // Setter 없어도 괜찮은 로직 찾으면 바꾸기
 public class Course {
 

@@ -17,7 +17,7 @@ public interface QuizRepository extends JpaRepository<Quiz, Long> {
     @Query("SELECT q FROM Quiz q " +
             "LEFT JOIN FETCH q.quizQuestions qq " +
             "WHERE q.user.id = :userId AND q.course.id = :courseId")
-    List<Quiz> findQuizzesByUserIdAndCourseId(
+    List<Quiz> findByUser_IdAndCourse_Id(
             @Param("userId") Long userId,
             @Param("courseId") Long courseId);
 
@@ -31,7 +31,7 @@ public interface QuizRepository extends JpaRepository<Quiz, Long> {
             "JOIN QuizQuestion qq ON q.quizId = qq.quiz.quizId " +
             "JOIN QuizChoice qc ON qc.quizQuestion.questionId = qq.questionId " +  // QuizChoice와 JOIN 추가
             "WHERE q.quizId = :quizId")
-    List<QuestionDetailDto> findQuizDetailsById(@Param("quizId") Long quizId);
+    List<QuestionDetailDto> findDetailsByQuizId(@Param("quizId") Long quizId);
 
 
 

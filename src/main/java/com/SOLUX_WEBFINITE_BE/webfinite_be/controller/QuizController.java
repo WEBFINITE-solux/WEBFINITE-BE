@@ -51,7 +51,7 @@ public class QuizController {
     public ResponseEntity<SubmitQuizResponseDto> submitAnswers(
             @RequestBody SubmitQuizRequestDto submissionRequestDto) {
         // SubmitQuizRequestDto에서 quizId를 자동으로 가져오므로 PathVariable은 필요하지 않음
-        SubmitQuizResponseDto response = quizService.submitAnswers(submissionRequestDto.getQuizId(), submissionRequestDto);
+        SubmitQuizResponseDto response = quizService.submitAnswers(submissionRequestDto);
         return ResponseEntity.ok(response);
     }
 

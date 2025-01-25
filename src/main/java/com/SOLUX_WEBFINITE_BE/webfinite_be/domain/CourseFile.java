@@ -8,6 +8,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.time.LocalDateTime;
 
 @Entity
+@Table(name = "course_files")
 @Getter @Setter
 public class CourseFile {
     @Id
@@ -28,6 +29,9 @@ public class CourseFile {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "course_id")
     private Course course;
+
+    @OneToOne(mappedBy = "file", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private FileSummary summary;
 
     // ==== 연관 관계 메서드 ====
     // 로직 상에서 양쪽에 값을 세팅해주기 위함

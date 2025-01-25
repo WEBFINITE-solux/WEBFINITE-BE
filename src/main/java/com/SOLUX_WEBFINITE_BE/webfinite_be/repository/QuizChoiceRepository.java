@@ -9,5 +9,5 @@ import java.util.List;
 @Repository
 public interface QuizChoiceRepository extends JpaRepository<QuizChoice, Long> {
     // 특정 문제에 대한 선택지 조회
-    List<QuizChoice> findByQuestionId(Long questionId);
+    List<QuizChoice> findByQuizQuestion_QuestionId(Long questionId);
 }

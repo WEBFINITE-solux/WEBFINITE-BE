@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 
 @Entity
+@Table(name = "quiz_choices")
 @Getter
 public class QuizChoice {
 
@@ -29,8 +30,13 @@ public class QuizChoice {
 
     public void setQuizQuestion(QuizQuestion quizQuestion) {
         this.quizQuestion = quizQuestion;
-        if (!quizQuestion.getQuizChoices().contains(this)) {
+        if (quizQuestion != null && !quizQuestion.getQuizChoices().contains(this)) {
             quizQuestion.getQuizChoices().add(this);
         }
+    }
+
+    // choiceContent 설정을 위한 메서드 추가
+    public void setChoiceContent(String choiceContent) {
+        this.choiceContent = choiceContent;
     }
 }

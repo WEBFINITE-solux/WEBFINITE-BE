@@ -22,7 +22,8 @@ public enum ErrorCode {
     // C - Course 관련 에러 코드
     NOT_EXISTS_Course_ID(HttpStatus.NOT_FOUND, "C-001", "존재하지 않는 강의 아이디입니다."),
     NOT_EXISTS_QUIZ_ID(HttpStatus.NOT_FOUND, "Q-001", "존재하지 않는 퀴즈 아이디입니다."), // 값이 없으면 에러떠서 임시로 넣어둠
-    NOT_EXISTS_QUESTION_ID(HttpStatus.NOT_FOUND, "Q-002", "존재하지 않는 질문 아이디입니다.");
+    NOT_EXISTS_QUESTION_ID(HttpStatus.NOT_FOUND, "Q-002", "존재하지 않는 질문 아이디입니다."),
+    ALREADY_EXISTS_QUIZ_ID(HttpStatus.BAD_REQUEST, "Q-003", "이미 답안을 제출했습니다. 답안을 수정하려면 '답안 수정 기능'을 이용하세요.");
 
 
     private final HttpStatus httpStatus;

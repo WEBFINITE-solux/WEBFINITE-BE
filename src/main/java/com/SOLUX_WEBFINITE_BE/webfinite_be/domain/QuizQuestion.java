@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
+@Table(name = "quiz_questions")
 @Getter
 @Setter
 public class QuizQuestion {
@@ -23,7 +24,7 @@ public class QuizQuestion {
     @Column(length = 255, nullable = false)
     private String questionContent;
 
-    @Column(length = 100, nullable = false)
+    @Column(length = 500, nullable = false)
     private String answer;
 
     @Column(columnDefinition = "TEXT", nullable = true)
@@ -40,8 +41,10 @@ public class QuizQuestion {
     private List<UserAnswer> userAnswers = new ArrayList<>();
 
     public void addQuizChoice(QuizChoice quizChoice) {
-        quizChoices.add(quizChoice);
-        quizChoice.setQuizQuestion(this);
+        if (!quizChoices.contains(quizChoice)) {
+            quizChoices.add(quizChoice);
+            quizChoice.setQuizQuestion(this);
+        }
     }
 
     public void addUserAnswer(UserAnswer userAnswer) {

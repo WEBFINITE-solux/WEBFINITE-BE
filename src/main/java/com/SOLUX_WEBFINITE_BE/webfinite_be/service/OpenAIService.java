@@ -1,8 +1,12 @@
 package com.SOLUX_WEBFINITE_BE.webfinite_be.service;
 
+import com.SOLUX_WEBFINITE_BE.webfinite_be.domain.CourseFile;
 import com.SOLUX_WEBFINITE_BE.webfinite_be.domain.QuizChoice;
 import com.SOLUX_WEBFINITE_BE.webfinite_be.domain.QuestionType;
 import com.SOLUX_WEBFINITE_BE.webfinite_be.domain.QuizQuestion;
+import org.json.JSONArray;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.http.HttpEntity;
@@ -19,125 +23,178 @@ import java.util.List;
 @Service
 public class OpenAIService {
 
-    private static final String OPENAI_URL = "https://api.openai.com/v1/completions";
     private final RestTemplate restTemplate;
+    private final String openAIModel; // 모델 이름을 저장할 변수
+    private final QuizService quizService;
 
-    public OpenAIService(RestTemplate restTemplate) {
+    // 생성자에서 모델 이름을 받아옵니다
+    public OpenAIService(RestTemplate restTemplate, @Value("${openai.model}") String openAIModel, @Lazy QuizService quizService) {
         this.restTemplate = restTemplate;
+        this.openAIModel = openAIModel; // 모델 이름 초기화
+        this.quizService = quizService;
     }
 
-    public List<QuizQuestion> generateQuizQuestions(String fileContent, String detailedRequirements) {
-        try {
-            // OpenAI API 호출을 위한 요청 본문 작성
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
+    //0124수정
+    public List<QuizQuestion> generateQuizQuestions(CourseFile courseFile, String detailedRequirements, QuestionType questionType, int totalQuestions) {
+        // 파일에서 텍스트 추출
+        String fileContent = quizService.generateFileContent(courseFile);
 
-            JSONObject requestBody = new JSONObject();
-            requestBody.put("model", "text-davinci-003");
-            requestBody.put("prompt", "Create quiz questions based on the following content and detailed requirements:\n"
-                    + detailedRequirements + "\nContent: " + fileContent);
-            requestBody.put("max_tokens", 500);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
 
-            HttpEntity<String> entity = new HttpEntity<>(requestBody.toString(), headers);
+        // 프롬프트 생성 (totalQuestions 추가)
+        String prompt = generatePrompt(questionType, totalQuestions);
 
-            // API 호출
-            ResponseEntity<String> response = restTemplate.exchange(
-                    OPENAI_URL,
-                    HttpMethod.POST,
-                    entity,
-                    String.class
-            );
+        // PDF 텍스트와 요구사항 결합
+        String combinedContent = fileContent + "\n\n" +
+                "Detailed Requirements: " + detailedRequirements + "\n\n" +
+                prompt;
 
-            // 응답에서 생성된 퀴즈 질문 추출
-            JSONObject jsonResponse = new JSONObject(response.getBody());
-            String generatedQuestions = jsonResponse.getJSONArray("choices").getJSONObject(0).getString("text");
+        // OpenAI API 요청 및 응답 처리
+        JSONObject requestBody = new JSONObject();
+        requestBody.put("model", openAIModel);
+        requestBody.put("messages", new JSONArray(Arrays.asList(
+                new JSONObject().put("role", "user").put("content", combinedContent)
+        )));
 
-            // 문제와 선택지 생성
-            List<QuizQuestion> quizQuestions = new ArrayList<>();
-            String[] questions = generatedQuestions.split("\n");
-            for (String questionText : questions) {
-                QuizQuestion quizQuestion = new QuizQuestion();
-                quizQuestion.setQuestionContent(questionText);
+        ResponseEntity<String> response = restTemplate.exchange(
+                "https://api.openai.com/v1/chat/completions",
+                HttpMethod.POST,
+                new HttpEntity<>(requestBody.toString(), headers),
+                String.class
+        );
 
-                if (questionText.contains("True/False")) {
-                    quizQuestion.setQuestionType(QuestionType.TRUE_FALSE);
-                    List<QuizChoice> choices = Arrays.asList(
-                            new QuizChoice("True"),
-                            new QuizChoice("False")
-                    );
-                    choices.forEach(quizQuestion::addQuizChoice);
-                } else if (questionText.contains("open-ended")) {
-                    quizQuestion.setQuestionType(QuestionType.SUBJECTIVE);
-                } else {
-                    quizQuestion.setQuestionType(QuestionType.MULTIPLE_CHOICE);
-                    List<QuizChoice> choices = Arrays.asList(
-                            new QuizChoice("A"),
-                            new QuizChoice("B"),
-                            new QuizChoice("C"),
-                            new QuizChoice("D")
-                    );
-                    choices.forEach(quizQuestion::addQuizChoice);
-                }
+        JSONObject jsonResponse = new JSONObject(response.getBody());
+        String generatedContent = jsonResponse.getJSONArray("choices")
+                .getJSONObject(0)
+                .getJSONObject("message")
+                .getString("content");
 
-                quizQuestions.add(quizQuestion);
+        // 질문 파싱
+        List<QuizQuestion> quizQuestions = new ArrayList<>();
+        String[] questions = generatedContent.split("\n\n"); // 문제별로 구분
+        for (String questionText : questions) {
+            QuizQuestion quizQuestion = new QuizQuestion();
+            quizQuestion.setQuestionContent(extractQuestion(questionText));
+            quizQuestion.setQuestionType(determineQuestionType(questionText));
+            quizQuestion.setAnswer(extractAnswer(questionText));
+            quizQuestion.setExplanation(extractExplanation(questionText));
+
+            // 객관식 및 참/거짓 문제의 경우 선택지 설정
+            if (quizQuestion.getQuestionType() != QuestionType.SUBJECTIVE) {
+                List<QuizChoice> choices = extractChoices(questionText);
+                choices.forEach(quizQuestion::addQuizChoice);
             }
 
-            // 생성된 퀴즈 질문을 반환
-            return quizQuestions;
-
-        } catch (Exception e) {
-            throw new RuntimeException("Error generating quiz questions: " + e.getMessage());
+            quizQuestions.add(quizQuestion);
         }
+
+        return quizQuestions;
     }
 
 
 
 
-    // 정답 생성 메서드 (이미 구현된 대로 사용)
-    public String generateAnswerFromQuestion(String questionContent, QuestionType questionType) {
-        try {
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
 
-            JSONObject requestBody = new JSONObject();
-            requestBody.put("model", "text-davinci-003");
-            requestBody.put("prompt", generatePrompt(questionContent, questionType));
-            requestBody.put("max_tokens", 150);
+    private String extractQuestion(String questionText) {
+        int startIdx = questionText.indexOf("Question: ") + "Question: ".length();
+        int endIdx = questionText.indexOf("\n", startIdx);
 
-            HttpEntity<String> entity = new HttpEntity<>(requestBody.toString(), headers);
+        return questionText.substring(startIdx, endIdx != -1 ? endIdx : questionText.length()).trim();
+    }
 
-            ResponseEntity<String> response = restTemplate.exchange(
-                    OPENAI_URL,
-                    HttpMethod.POST,
-                    entity,
-                    String.class
-            );
 
-            JSONObject jsonResponse = new JSONObject(response.getBody());
-            String generatedText = jsonResponse.getJSONArray("choices").getJSONObject(0).getString("text");
 
-            // 주관식 문제에 대한 정답 생성
-            if (questionType == QuestionType.SUBJECTIVE) {
-                return generatedText.trim(); // 주관식 문제는 OpenAI의 응답을 그대로 정답으로 설정
+    // 선택지를 추출하는 메서드
+    private List<QuizChoice> extractChoices(String questionText) {
+        List<QuizChoice> choices = new ArrayList<>();
+        String[] lines = questionText.split("\n");
+
+        for (String line : lines) {
+            if (line.matches("^[A-D]\\).*")) { // A), B), C), D)로 시작하는지 확인
+                QuizChoice choice = new QuizChoice();
+                choice.setChoiceContent(line.substring(2).trim()); // 'A)' 이후의 내용만 저장
+                choices.add(choice);
             }
+        }
+        return choices;
+    }
 
-            return generatedText.trim();
 
-        } catch (Exception e) {
-            throw new RuntimeException("Error generating answer from question: " + e.getMessage());
+
+    private String extractAnswer(String questionText) {
+        int startIdx = questionText.indexOf("Answer: ") + "Answer: ".length();
+        int endIdx = questionText.indexOf("\n", startIdx);
+
+        return questionText.substring(startIdx, endIdx != -1 ? endIdx : questionText.length()).trim();
+    }
+
+
+
+    private String extractExplanation(String questionText) {
+        int startIdx = questionText.indexOf("Explanation: ") + "Explanation: ".length();
+        return startIdx >= "Explanation: ".length() ? questionText.substring(startIdx).trim() : "";
+    }
+
+
+
+
+    // 질문 유형을 판단하는 메서드 (예시로 주관식/객관식 구분)
+    private QuestionType determineQuestionType(String questionText) {
+        if (questionText.contains("A)") || questionText.contains("B)") || questionText.contains("C)") || questionText.contains("D)")) {
+            return QuestionType.MULTIPLE_CHOICE;
+        } else if (questionText.contains("True") || questionText.contains("False")) {
+            return QuestionType.TRUE_FALSE;
+        } else {
+            return QuestionType.SUBJECTIVE;  // 기본적으로 SUBJECTIVE로 처리
         }
     }
 
-    private String generatePrompt(String questionContent, QuestionType questionType) {
-        switch (questionType) {
-            case MULTIPLE_CHOICE:
-                return "Create a multiple choice question with 4 options (A, B, C, D) and provide the correct answer for the following question: " + questionContent;
-            case TRUE_FALSE:
-                return "Provide the correct answer (True or False) for the following statement: " + questionContent;
-            case SUBJECTIVE:
-                return "Provide the best possible answer for the following open-ended question: " + questionContent;
-            default:
-                return "Provide the correct answer for the following question: " + questionContent;
+
+
+
+    //0124 수정
+    private String generatePrompt(QuestionType questionType, int totalQuestions) {
+        StringBuilder promptBuilder = new StringBuilder();
+        for (int i = 1; i <= totalQuestions; i++) {
+            switch (questionType) {
+                case MULTIPLE_CHOICE:
+                    promptBuilder.append("Please create a multiple-choice question with 4 options (A, B, C, D) and provide the correct answer and explanation. ")
+                            .append("Format the output exactly like this:\n")
+                            .append("Question: <question>\n")
+                            .append("A) <choice A>\n")
+                            .append("B) <choice B>\n")
+                            .append("C) <choice C>\n")
+                            .append("D) <choice D>\n")
+                            .append("Answer: <correct answer letter>\n")
+                            .append("Explanation: <explanation>\n\n");
+                    break;
+
+                case TRUE_FALSE:
+                    promptBuilder.append("Please create a True/False question with the correct answer and explanation. ")
+                            .append("Format the output exactly like this:\n")
+                            .append("Question: <question>\n")
+                            .append("True\n")
+                            .append("False\n")
+                            .append("Answer: <correct answer letter>\n")
+                            .append("Explanation: <explanation>\n\n");
+                    break;
+
+                case SUBJECTIVE:
+                    promptBuilder.append("Please create an open-ended question and provide the best possible answer as the explanation. ")
+                            .append("Format the output exactly like this:\n")
+                            .append("Question: <question>\n")
+                            .append("Answer: <answer>\n")
+                            .append("Explanation: <explanation>\n\n");
+                    break;
+
+                default:
+                    throw new IllegalArgumentException("Unsupported question type: " + questionType);
+            }
         }
+        return promptBuilder.toString().trim();
     }
+
+
+
 }
