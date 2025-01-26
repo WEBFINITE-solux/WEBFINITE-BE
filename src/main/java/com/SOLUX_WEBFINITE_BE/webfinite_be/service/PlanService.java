@@ -140,7 +140,7 @@ public class PlanService {
         for(LearningPlan plan : learningPlans){
             for(PlanDTO.Plan planDTO : plans.getLearningPlan()){
                 if(plan.getId().equals(planDTO.getPlanId())){
-                    plan.setTitle(plan.getTitle());
+                    plan.setTitle(planDTO.getPlanTitle());
                     plan.setDescription(planDTO.getPlanDescription());
                 }
             }
