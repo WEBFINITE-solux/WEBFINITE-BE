@@ -53,11 +53,12 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL) // User와 Todo는 일대다 관계
     private List<Todo> todos = new ArrayList<>();
 //
-//    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL) // User와 UserAnswer는 일대다 관계
-//    private List<UserAnswer> userAnswers = new ArrayList<>();
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL) // User와 UserAnswer는 일대다 관계
+    private List<UserAnswer> userAnswers = new ArrayList<>();
 //
-//    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL) // User와 Quiz는 일대다 관계
-//    private List<Quiz> quizzes = new ArrayList<>();
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL) // User와 Quiz는 일대다 관계
+    private List<Quiz> quizzes = new ArrayList<>();
+
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL) // User와 UserProfile는 일대일 관계
     private UserProfile userProfile;
 

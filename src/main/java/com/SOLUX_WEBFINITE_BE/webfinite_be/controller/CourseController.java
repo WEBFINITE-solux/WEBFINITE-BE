@@ -8,6 +8,7 @@ import com.SOLUX_WEBFINITE_BE.webfinite_be.service.CourseService;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.Valid;
 import lombok.*;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -84,6 +85,13 @@ public class CourseController {
     public SimpleResponse deleteFile(@PathVariable("fileId") Long fileId){
         courseService.deleteFile(fileId);
         return new SimpleResponse("강의 자료 삭제 완료");
+    }
+
+    // 사용자 ID를 기반으로 수강 중인 강의와 그에 해당하는 파일 리스트 조회
+    @GetMapping("/{userId}/files")
+    public ResponseEntity<List<Map<String, Object>>> getCourseFilesWithCourseName(@PathVariable Long userId) {
+        List<Map<String, Object>> courseFiles = courseService.getCourseFilesWithCourseName(userId);
+        return ResponseEntity.ok(courseFiles);
     }
 
 

@@ -22,4 +22,7 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
     // 강의 일정 조회 => 시간대 중복 체크용, only 일정
     @Query("select cs from CourseSchedule cs join cs.course c where c.user.id = :id and c.year = :year and c.semester = :semester")
     List<CourseSchedule> findScheduleByUserId(@Param("id") Long userId, @Param("year") int year, @Param("semester") int semester);
+
+    // 사용자 ID를 기준으로 수강 중인 강의 리스트 조회
+    List<Course> findByUserId(Long userId);
 }

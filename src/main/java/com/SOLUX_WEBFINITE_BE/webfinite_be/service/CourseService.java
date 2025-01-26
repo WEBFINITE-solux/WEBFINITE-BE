@@ -23,6 +23,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -190,6 +191,36 @@ public class CourseService {
         // 일반적인 겹침 조건
         return (newSchedule.getStartTime().isBefore(existingSchedule.getEndTime()) &&
                 newSchedule.getEndTime().isAfter(existingSchedule.getStartTime()));
+    }
+
+    // 사용자 ID를 기반으로 해당 사용자가 수강하는 강의와 그에 대한 파일 정보를 조회
+    public List<Map<String, Object>> getCourseFilesWithCourseName(Long userId) {
+        userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException());
+        // 1. 사용자가 수강하는 강의 리스트를 조회
+        List<Course> courses = courseRepository.findByUserId(userId);  // 사용자 ID를 기준으로 강의 리스트 조회
+
+        // 만약 사용자가 수강하는 강의가 없다면 예외 처리
+        if (courses.isEmpty()) {
+            throw new CourseNotFoundException();
+        }
+
+        // 2. 각 강의에 대해 해당 강의의 파일 리스트를 조회
+        return courses.stream()
+                .flatMap(course -> {
+                    // 강의에 해당하는 파일 리스트 조회
+                    List<CourseFile> files = fileRepository.findByCourseId(course.getId());
+
+                    // 파일 정보를 강의명과 함께 매핑
+                    return files.stream().map(file -> {
+                        Map<String, Object> courseFileInfo = new HashMap<>();
+                        courseFileInfo.put("courseName", course.getTitle());  // 강의명
+                        courseFileInfo.put("fileName", file.getOriginalFilename());  // 파일명
+                        courseFileInfo.put("fileId", file.getId());  // 파일 ID
+                        return courseFileInfo;
+                    });
+                })
+                .collect(Collectors.toList());
     }
 
 }

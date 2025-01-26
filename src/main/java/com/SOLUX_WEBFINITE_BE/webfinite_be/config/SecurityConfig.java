@@ -36,16 +36,17 @@ public class SecurityConfig {
         http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         // H2 콘솔 접근 허용
         http.authorizeHttpRequests(authz -> authz
-                .requestMatchers("/h2-console/**").permitAll()  // H2 콘솔 경로는 인증 없이 접근 가능
-                .requestMatchers("/todo/**").permitAll()  // /todo 경로는 인증 없이 접근 가능
-                .requestMatchers("/course/**").permitAll()  // course 경로는 인증 없이 접근 가능
-                .requestMatchers("/plan/**").permitAll()  // plan 경로는 인증 없이 접근 가능
-                .requestMatchers("/summary/**").permitAll()  // summary 경로는 인증 없이 접근 가능
-                .requestMatchers("/members/sign-in").permitAll() // 로그인 인증 없이 접근 가능
-                .requestMatchers("/user/logout").permitAll() // 로그아웃 인증 없이 접근 가능
-                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**").permitAll() // 스웨거 인증 없이 접근 허용
+                        .requestMatchers("/h2-console/**").permitAll()  // H2 콘솔 경로는 인증 없이 접근 가능
+                        .requestMatchers("/todo/**").permitAll()  // todo 경로는 인증 없이 접근 가능
+                        .requestMatchers("/quiz/**").permitAll()  // quiz 경로는 인증 없이 접근 가능
+                        .requestMatchers("/course/**").permitAll()  // course 경로는 인증 없이 접근 가능
+                        .requestMatchers("/plan/**").permitAll()  // plan 경로는 인증 없이 접근 가능
+                        .requestMatchers("/summary/**").permitAll()  // summary 경로는 인증 없이 접근 가능
+                        .requestMatchers("/members/sign-in").permitAll() // 로그인 인증 없이 접근 가능
+                        .requestMatchers("/user/logout").permitAll() // 로그아웃 인증 없이 접근 가능
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**").permitAll() // 스웨거 인증 없이 접근 허용
 //                .anyRequest().authenticated()  // 나머지 요청은 인증 필요
-                .anyRequest().permitAll()  // 나머지 모든 요청을 인증 없이 허가
+                        .anyRequest().permitAll()  // 나머지 모든 요청을 인증 없이 허가
         );
 
         // JWT 필터 설정
