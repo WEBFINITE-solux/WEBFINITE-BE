@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "quizzes")
 @Getter
 @Setter
 public class Quiz {
@@ -47,7 +46,7 @@ public class Quiz {
     }
 
     public String getCourseName() {
-        return course != null ? course.getCourseName() : null; // Course가 null이 아니면 courseName을 반환
+        return course != null ? course.getTitle() : null; // Course가 null이 아니면 title 반환
     }
 
     @PrePersist

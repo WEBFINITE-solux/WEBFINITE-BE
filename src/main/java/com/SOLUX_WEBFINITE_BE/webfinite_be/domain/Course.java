@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "courses")
 @Getter @Setter // Setter 없어도 괜찮은 로직 찾으면 바꾸기
 public class Course {
 
@@ -87,10 +86,5 @@ public class Course {
         }
 
         return course;
-    }
-
-    // 추가: 강의명 반환 메서드
-    public String getCourseName() {
-        return this.title;  // title 필드 값 반환
     }
 }

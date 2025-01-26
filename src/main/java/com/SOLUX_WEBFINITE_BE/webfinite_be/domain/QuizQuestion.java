@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "quiz_questions")
 @Getter
 @Setter
 public class QuizQuestion {

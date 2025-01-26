@@ -8,7 +8,6 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "course_files")
 @Getter @Setter
 public class CourseFile {
     @Id
