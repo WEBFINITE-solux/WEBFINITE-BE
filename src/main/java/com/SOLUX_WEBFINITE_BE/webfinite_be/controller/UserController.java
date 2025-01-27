@@ -36,7 +36,15 @@ public class UserController {
     public ResponseEntity<?> signIn(@RequestBody SignInDto signInDto) {
         try {
             JwtToken jwtToken = userService.signIn(signInDto.getLoginUserId(), signInDto.getPassword());
-            return ResponseEntity.ok(jwtToken);
+
+            // Access Token에서 userId 추출
+            Long userId = jwtTokenProvider.getUserIdFromToken(jwtToken.getAccessToken());
+
+            // JWT 토큰과 userId를 함께 반환
+            return ResponseEntity.ok(Map.of(
+                    "jwtToken", jwtToken,
+                    "userId", userId
+            ));
         } catch (IllegalArgumentException e) {
             // 비밀번호 오류 또는 사용자 존재하지 않음
             return ResponseEntity.badRequest().body(e.getMessage());
