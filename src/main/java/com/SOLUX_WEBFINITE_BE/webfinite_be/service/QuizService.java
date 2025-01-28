@@ -156,6 +156,7 @@ public class QuizService {
                 quiz.getQuizId(),
                 quiz.getQuizTitle(),
                 courseName,
+                quiz.getQuizType() != null ? quiz.getQuizType().name() : "",  // quizType을 문자열로 변환하여 전달
                 generatedQuestions.stream()
                         .map(q -> new QuestionDetailDto(
                                 q.getQuestionId(),
@@ -164,7 +165,8 @@ public class QuizService {
                                         .map(choice -> new QuizChoiceDto(choice.getChoiceId(), choice.getChoiceContent()))
                                         .collect(Collectors.toList()) : Collections.emptyList(),
                                 q.getAnswer(),
-                                q.getExplanation()
+                                q.getExplanation(),
+                                q.getQuestionType()
                         ))
                         .collect(Collectors.toList())
         );
@@ -181,6 +183,18 @@ public class QuizService {
 
         // QuizQuestion 데이터를 조회하여 QuestionDetailDto로 변환
         List<QuizQuestion> quizQuestions = quizQuestionRepository.findByQuiz_QuizId(quizId);
+
+        // 모든 질문의 questionType을 확인
+        QuestionType quizType = null;
+        for (QuizQuestion question : quizQuestions) {
+            if (quizType == null) {
+                quizType = question.getQuestionType();  // 첫 번째 질문의 questionType을 설정
+            } else if (!quizType.equals(question.getQuestionType())) {
+                quizType = null;  // 만약 질문들이 서로 다른 type을 가지면 quizType은 null로 설정
+                break;
+            }
+        }
+
         List<QuestionDetailDto> questionDetails = quizQuestions.stream()
                 .map(question -> new QuestionDetailDto(
                         question.getQuestionId(),
@@ -189,7 +203,8 @@ public class QuizService {
                                 .map(choice -> new QuizChoiceDto(choice.getChoiceId(), choice.getChoiceContent()))
                                 .collect(Collectors.toList()) : Collections.emptyList(),
                         question.getAnswer(),
-                        question.getExplanation()
+                        question.getExplanation(),
+                        question.getQuestionType()
                 ))
                 .collect(Collectors.toList());
 
@@ -198,6 +213,7 @@ public class QuizService {
                 quiz.getQuizId(),
                 quiz.getQuizTitle(),
                 courseTitle,
+                quizType.name(),  // quizType 값을 이름으로 반환
                 questionDetails
         );
     }

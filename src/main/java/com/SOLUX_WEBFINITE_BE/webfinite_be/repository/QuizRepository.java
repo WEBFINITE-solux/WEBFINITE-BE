@@ -26,10 +26,10 @@ public interface QuizRepository extends JpaRepository<Quiz, Long> {
             "qq.questionId, qq.questionContent, " +
             "(SELECT new com.SOLUX_WEBFINITE_BE.webfinite_be.dto.QuizChoiceDto(qc.choiceId, qc.choiceContent) " +
             "FROM QuizChoice qc WHERE qc.quizQuestion.questionId = qq.questionId ORDER BY qc.choiceId ASC), " +
-            "qq.answer, qq.explanation) " +
+            "qq.answer, qq.explanation, qq.questionType) " + // questionType 추가
             "FROM Quiz q " +
             "JOIN QuizQuestion qq ON q.quizId = qq.quiz.quizId " +
-            "JOIN QuizChoice qc ON qc.quizQuestion.questionId = qq.questionId " +  // QuizChoice와 JOIN 추가
+            "JOIN QuizChoice qc ON qc.quizQuestion.questionId = qq.questionId " + // QuizChoice와 JOIN 추가
             "WHERE q.quizId = :quizId")
     List<QuestionDetailDto> findDetailsByQuizId(@Param("quizId") Long quizId);
 

@@ -1,5 +1,6 @@
 package com.SOLUX_WEBFINITE_BE.webfinite_be.dto;
 
+import com.SOLUX_WEBFINITE_BE.webfinite_be.domain.QuestionType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,4 +18,5 @@ public class QuestionDetailDto {
     private List<QuizChoiceDto> choices;  // 선택지 목록
     private String answer;  // 정답
     private String explanation;  // 설명
+    private QuestionType questionType; // 추가
 }

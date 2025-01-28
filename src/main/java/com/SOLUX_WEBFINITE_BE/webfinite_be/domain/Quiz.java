@@ -34,6 +34,9 @@ public class Quiz {
     @JoinColumn(name = "course_id", nullable = false)
     private Course course; // 필드 이름을 명확히 "course"로 설정
 
+    @Enumerated(EnumType.STRING) // Enum 타입 저장
+    private QuestionType quizType; // 퀴즈 유형
+
     @OneToMany(mappedBy = "quiz", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<QuizQuestion> quizQuestions = new ArrayList<>();
 
