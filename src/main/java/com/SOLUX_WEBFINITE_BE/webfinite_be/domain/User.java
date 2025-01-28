@@ -62,6 +62,12 @@ public class User implements UserDetails {
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL) // User와 UserProfile는 일대일 관계
     private UserProfile userProfile;
 
+    // == 연관 관계 메서드 == //
+    public void setUserProfile (UserProfile userProfile) {
+        this.userProfile = userProfile;
+        userProfile.setUser(this);
+    }
+
     // == 비즈니스 로직 == //
     public void setPassword(String encryptedPassword) {
         this.password = encryptedPassword;

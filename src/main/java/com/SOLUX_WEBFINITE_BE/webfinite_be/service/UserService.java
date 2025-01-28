@@ -6,6 +6,7 @@ import com.SOLUX_WEBFINITE_BE.webfinite_be.auth.JwtTokenProvider;
 import com.SOLUX_WEBFINITE_BE.webfinite_be.domain.Attend;
 import com.SOLUX_WEBFINITE_BE.webfinite_be.domain.Login;
 import com.SOLUX_WEBFINITE_BE.webfinite_be.domain.User;
+import com.SOLUX_WEBFINITE_BE.webfinite_be.domain.UserProfile;
 import com.SOLUX_WEBFINITE_BE.webfinite_be.dto.SignUpDto;
 import com.SOLUX_WEBFINITE_BE.webfinite_be.repository.AttendRepository;
 import com.SOLUX_WEBFINITE_BE.webfinite_be.repository.LoginRepository;
@@ -108,6 +109,13 @@ public class UserService {
                 .email(signUpDto.getEmail())
                 .roles(List.of("USER")) // 기본 권한 부여
                 .build();
+
+        // UserProfile 엔티티 생성
+        UserProfile userProfile = new UserProfile();
+        userProfile.setUser(user);
+
+        user.setUserProfile(userProfile);
+
         // 저장
         userRepository.save(user);
     }

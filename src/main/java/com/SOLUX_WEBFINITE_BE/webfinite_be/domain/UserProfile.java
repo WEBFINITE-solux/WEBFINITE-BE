@@ -29,4 +29,8 @@ public class UserProfile {
         this.icon = icon;
     }
 
+    public void setUser(User user) {
+        this.user = user;
+    }
+
 }
