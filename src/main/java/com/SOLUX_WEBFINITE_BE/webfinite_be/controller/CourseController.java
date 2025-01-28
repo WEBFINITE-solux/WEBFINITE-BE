@@ -27,23 +27,16 @@ public class CourseController {
 
     private final CourseService courseService;
 
-    @GetMapping("/{userId}")
-    public CourseListResponse courseList(@PathVariable("userId") Long id, @RequestBody @Valid CourseListRequest request){
-        if(request == null){
-            throw new IllegalStateException("학기 정보가 없습니다.");
-        }
-
-        List<Course> courses = courseService.getListThisSemester(id, request.getYear(), request.getSemester());
+    @GetMapping("/{userId}/{year}/{semester}")
+    public CourseListResponse courseList(@PathVariable("userId") Long id, @PathVariable("year") int year, @PathVariable("semester") int semester){
+        List<Course> courses = courseService.getListThisSemester(id, year, semester);
         return new CourseListResponse(courses);
     }
 
 
-    @GetMapping("/table/{userId}")
-    public CourseScheduleResponse courseTable(@PathVariable("userId") Long id, @RequestBody @Valid CourseListRequest request){
-        if(request == null){
-            throw new IllegalStateException("학기 정보가 없습니다.");
-        }
-        List<Map<String, Object>> courses = courseService.getCourseTimeTable(id, request.getYear(), request.getSemester());
+    @GetMapping("/table/{userId}/{year}/{semester}")
+    public CourseScheduleResponse courseTable(@PathVariable("userId") Long id, @PathVariable("year") int year, @PathVariable("semester") int semester){
+        List<Map<String, Object>> courses = courseService.getCourseTimeTable(id, year, semester);
         return new CourseScheduleResponse(courses);
     }
 
