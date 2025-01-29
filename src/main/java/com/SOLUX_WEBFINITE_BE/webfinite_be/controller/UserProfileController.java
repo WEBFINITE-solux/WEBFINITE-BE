@@ -4,7 +4,6 @@ import com.SOLUX_WEBFINITE_BE.webfinite_be.dto.UserProfileResponseDto;
 import com.SOLUX_WEBFINITE_BE.webfinite_be.dto.UserProfileUpdateRequestDto;
 import com.SOLUX_WEBFINITE_BE.webfinite_be.repository.UserProfileRepository;
 import com.SOLUX_WEBFINITE_BE.webfinite_be.service.UserProfileService;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
