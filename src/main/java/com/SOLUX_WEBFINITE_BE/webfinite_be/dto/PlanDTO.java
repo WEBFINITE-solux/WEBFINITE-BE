@@ -14,6 +14,7 @@ import java.util.List;
 @NoArgsConstructor
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class PlanDTO {
+    private Long courseId;
     private String promptText;
     private List<Plan> learningPlan;
 

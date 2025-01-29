@@ -50,7 +50,7 @@ public class PlanService {
         // 학습 계획 조회 (없을 경우 빈 리스트 반환)
         List<LearningPlan> plans = planRepository.findPlansByCourseId(courseId);
 
-        return new PlanDTO(promptText, PlanDTO.toPlanDTO(plans));
+        return new PlanDTO(course.getId(), promptText, PlanDTO.toPlanDTO(plans));
     }
 
     public SimpleResponse createPlan(Long courseId, String promptText, LocalDate startDate, LocalDate endDate, String startUnit, String endUnit, Long fileId) throws IOException {
