@@ -67,6 +67,13 @@ public class SummaryService {
         summaryRepository.save(summary);
     }
 
+    public Boolean isSummaryExist(Long fileId) {
+        if(summaryRepository.findByFileId(fileId).isPresent()){
+            return true;
+        }
+        return false;
+    }
+
     private String pdfToText(File file) throws IOException {
         try {
             PDDocument pdfDoc = PDDocument.load(file);

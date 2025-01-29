@@ -11,4 +11,6 @@ public class FileDTO {
     private Long fileId;
     @JsonProperty("original_filename")
     private String originalFilename;
+    @JsonProperty("is_summarized")
+    private boolean isSummarized;
 }

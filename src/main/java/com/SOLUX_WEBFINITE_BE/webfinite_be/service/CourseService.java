@@ -32,6 +32,7 @@ public class CourseService {
     private final CourseRepository courseRepository;
     private final UserRepository userRepository;
     private final FileRepository fileRepository;
+    private final SummaryService summaryService;
 
     // 강의 등록
     @Transactional
@@ -138,7 +139,7 @@ public class CourseService {
 
         fileRepository.save(courseFile);
 
-        return new FileDTO( courseFile.getId(), courseFile.getOriginalFilename());
+        return new FileDTO( courseFile.getId(), courseFile.getOriginalFilename(), false);
     }
 
     // 강의 자료 조회
@@ -149,7 +150,10 @@ public class CourseService {
         List<CourseFile> files = fileRepository.findByCourseId(courseId);
 
         return files.stream()
-                .map(file -> new FileDTO(file.getId(), file.getOriginalFilename()))
+                .map(file -> {
+                    boolean isSummarized = summaryService.isSummaryExist(file.getId());
+                    return new FileDTO(file.getId(), file.getOriginalFilename(), isSummarized);
+                })
                 .toList();
     }
 
