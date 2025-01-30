@@ -10,6 +10,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
+
 @RequiredArgsConstructor
 @Service
 public class AttendService {
@@ -34,4 +38,13 @@ public class AttendService {
 
         return new LoginResponseDto(entity);
     }
+
+    // 특정 유저 ID (userId)의 로그인 기록을 기간 내 조회 - Login
+    public List<LoginResponseDto> getUserLoginsWithinWeek(Long userId, LocalDateTime startDate, LocalDateTime endDate) {
+        List<Login> logins = loginRepository.findUserLoginsWithinPeriod(userId, startDate, endDate);
+        return logins.stream()
+                .map(LoginResponseDto::new)  // 엔티티를 DTO로 변환
+                .collect(Collectors.toList());
+    }
+
 }
