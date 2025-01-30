@@ -36,8 +36,8 @@ public class AttendController {
     }
 
     // 최근 일주일 간 로그인, 로그아웃 기간 조회 (YYMMDD HH:MM:SS) - Login
-    @GetMapping("/attend")
-    public List<LoginResponseDto> getUserLastWeekLogins(@RequestParam("userId") Long userId) {
+    @GetMapping("/attend/login/{userId}")
+    public List<LoginResponseDto> getUserLastWeekLogins(@PathVariable Long userId) {
         LocalDateTime endDate = LocalDateTime.now();
         LocalDateTime startDate = endDate.minusDays(7);
         return attendService.getUserLoginsWithinWeek(userId, startDate, endDate);
