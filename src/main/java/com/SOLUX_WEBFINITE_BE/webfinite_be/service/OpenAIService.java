@@ -149,7 +149,7 @@ public class OpenAIService {
         for (int i = 1; i <= totalQuestions; i++) {
             switch (questionType) {
                 case MULTIPLE_CHOICE:
-                    promptBuilder.append("4개의 선택지를 가진 객관식 문제를 만들어 주세요. 정답과 해설도 포함해 주세요. ")
+                    promptBuilder.append("한국어로 4개의 선택지를 가진 객관식 문제를 만들어 주세요. 정답과 해설도 포함해 주세요. ")
                             .append("출력 형식은 다음과 같이 해주세요:\n")
                             .append("문제: <문제 내용>\n")
                             .append("A) <선택지 A>\n")
@@ -161,7 +161,7 @@ public class OpenAIService {
                     break;
 
                 case TRUE_FALSE:
-                    promptBuilder.append("참/거짓 문제를 만들어 주세요. 정답과 해설도 포함해 주세요. ")
+                    promptBuilder.append("한국어로 참/거짓 문제를 만들어 주세요. 정답과 해설도 포함해 주세요. ")
                             .append("출력 형식은 다음과 같이 해주세요:\n")
                             .append("문제: <문제 내용>\n")
                             .append("참\n")
@@ -171,7 +171,7 @@ public class OpenAIService {
                     break;
 
                 case SUBJECTIVE:
-                    promptBuilder.append("주관식 문제를 만들어 주세요. 가능한 최적의 답안을 해설로 제공해 주세요. ")
+                    promptBuilder.append("한국어로 주관식 문제를 만들어 주세요. 가능한 최적의 답안을 해설로 제공해 주세요. ")
                             .append("출력 형식은 다음과 같이 해주세요:\n")
                             .append("문제: <문제 내용>\n")
                             .append("정답: <정답>\n")
