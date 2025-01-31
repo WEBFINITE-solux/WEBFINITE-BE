@@ -97,13 +97,10 @@ public class OpenAIService {
 
 
     private String extractQuestion(String questionText) {
-        int startIdx = questionText.indexOf("Question: ") + "Question: ".length();
+        int startIdx = questionText.indexOf("문제: ") + "문제: ".length();
         int endIdx = questionText.indexOf("\n", startIdx);
-
         return questionText.substring(startIdx, endIdx != -1 ? endIdx : questionText.length()).trim();
     }
-
-
 
     // 선택지를 추출하는 메서드
     private List<QuizChoice> extractChoices(String questionText) {
@@ -120,35 +117,28 @@ public class OpenAIService {
         return choices;
     }
 
-
-
     private String extractAnswer(String questionText) {
-        int startIdx = questionText.indexOf("Answer: ") + "Answer: ".length();
+        int startIdx = questionText.indexOf("정답: ") + "정답: ".length();
         int endIdx = questionText.indexOf("\n", startIdx);
-
         return questionText.substring(startIdx, endIdx != -1 ? endIdx : questionText.length()).trim();
     }
 
-
-
     private String extractExplanation(String questionText) {
-        int startIdx = questionText.indexOf("Explanation: ") + "Explanation: ".length();
-        return startIdx >= "Explanation: ".length() ? questionText.substring(startIdx).trim() : "";
+        int startIdx = questionText.indexOf("해설: ") + "해설: ".length();
+        return startIdx >= "해설: ".length() ? questionText.substring(startIdx).trim() : "";
     }
 
-
-
-
-    // 질문 유형을 판단하는 메서드 (예시로 주관식/객관식 구분)
+    // 질문 유형을 판단하는 메서드
     private QuestionType determineQuestionType(String questionText) {
         if (questionText.contains("A)") || questionText.contains("B)") || questionText.contains("C)") || questionText.contains("D)")) {
             return QuestionType.MULTIPLE_CHOICE;
-        } else if (questionText.contains("True") || questionText.contains("False")) {
+        } else if (questionText.contains("참") || questionText.contains("거짓")) {
             return QuestionType.TRUE_FALSE;
         } else {
-            return QuestionType.SUBJECTIVE;  // 기본적으로 SUBJECTIVE로 처리
+            return QuestionType.SUBJECTIVE;
         }
     }
+
 
 
 
@@ -159,37 +149,37 @@ public class OpenAIService {
         for (int i = 1; i <= totalQuestions; i++) {
             switch (questionType) {
                 case MULTIPLE_CHOICE:
-                    promptBuilder.append("Please create a multiple-choice question with 4 options (A, B, C, D) and provide the correct answer and explanation. ")
-                            .append("Format the output exactly like this:\n")
-                            .append("Question: <question>\n")
-                            .append("A) <choice A>\n")
-                            .append("B) <choice B>\n")
-                            .append("C) <choice C>\n")
-                            .append("D) <choice D>\n")
-                            .append("Answer: <correct answer letter>\n")
-                            .append("Explanation: <explanation>\n\n");
+                    promptBuilder.append("4개의 선택지를 가진 객관식 문제를 만들어 주세요. 정답과 해설도 포함해 주세요. ")
+                            .append("출력 형식은 다음과 같이 해주세요:\n")
+                            .append("문제: <문제 내용>\n")
+                            .append("A) <선택지 A>\n")
+                            .append("B) <선택지 B>\n")
+                            .append("C) <선택지 C>\n")
+                            .append("D) <선택지 D>\n")
+                            .append("정답: <정답 선택지 글자 및 내용>\n")
+                            .append("해설: <해설>\n\n");
                     break;
 
                 case TRUE_FALSE:
-                    promptBuilder.append("Please create a True/False question with the correct answer and explanation. ")
-                            .append("Format the output exactly like this:\n")
-                            .append("Question: <question>\n")
-                            .append("True\n")
-                            .append("False\n")
-                            .append("Answer: <correct answer letter>\n")
-                            .append("Explanation: <explanation>\n\n");
+                    promptBuilder.append("참/거짓 문제를 만들어 주세요. 정답과 해설도 포함해 주세요. ")
+                            .append("출력 형식은 다음과 같이 해주세요:\n")
+                            .append("문제: <문제 내용>\n")
+                            .append("참\n")
+                            .append("거짓\n")
+                            .append("정답: <정답 선택지 글자>\n")
+                            .append("해설: <해설>\n\n");
                     break;
 
                 case SUBJECTIVE:
-                    promptBuilder.append("Please create an open-ended question and provide the best possible answer as the explanation. ")
-                            .append("Format the output exactly like this:\n")
-                            .append("Question: <question>\n")
-                            .append("Answer: <answer>\n")
-                            .append("Explanation: <explanation>\n\n");
+                    promptBuilder.append("주관식 문제를 만들어 주세요. 가능한 최적의 답안을 해설로 제공해 주세요. ")
+                            .append("출력 형식은 다음과 같이 해주세요:\n")
+                            .append("문제: <문제 내용>\n")
+                            .append("정답: <정답>\n")
+                            .append("해설: <해설>\n\n");
                     break;
 
                 default:
-                    throw new IllegalArgumentException("Unsupported question type: " + questionType);
+                    throw new IllegalArgumentException("지원되지 않는 문제 유형: " + questionType);
             }
         }
         return promptBuilder.toString().trim();
