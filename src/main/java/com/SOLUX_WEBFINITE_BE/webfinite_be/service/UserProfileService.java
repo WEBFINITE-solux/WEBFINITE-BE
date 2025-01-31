@@ -19,7 +19,7 @@ public class UserProfileService {
     // 프로필 조회
     @Transactional
     public UserProfileResponseDto findById(Long userId) {
-        UserProfile entity = userProfileRepository.findById(userId)
+        UserProfile entity = userProfileRepository.findByUserId(userId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 유저 프로필 정보가 없습니다. profileId = " + userId)); // 예외처리 필요
 
         return new UserProfileResponseDto(entity);
