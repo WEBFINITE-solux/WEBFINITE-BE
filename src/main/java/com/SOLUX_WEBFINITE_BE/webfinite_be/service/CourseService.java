@@ -34,6 +34,8 @@ public class CourseService {
     private final FileRepository fileRepository;
     private final SummaryService summaryService;
 
+    private List<String> colors = Arrays.asList("#FF9E9E", "#9EFFEA", "#FFD3A9", "#C2B1FF", "#95BAFF", "#D5D5D5");
+
     // 강의 등록
     @Transactional
     public Long saveCourse(Long id, String title, LocalDate period, int year, int semester, String color, List<CourseSchedule> schedules){
@@ -47,8 +49,10 @@ public class CourseService {
         // 시간대 중복 체크
         validateScheduleConflict(user.getId(), schedules, year, semester);
 
+        int countCourse = getListThisSemester(id, year, semester).size();
+        String tableColor = colors.get(countCourse % colors.size());
 
-        Course course = Course.createCourse(user, title, period, year, semester, color, schedules);
+        Course course = Course.createCourse(user, title, period, year, semester, tableColor, schedules);
 
         courseRepository.save(course);
         return course.getId();
