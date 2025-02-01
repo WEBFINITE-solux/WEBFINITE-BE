@@ -73,7 +73,13 @@ public class OpenAIService {
         // 질문 파싱
         List<QuizQuestion> quizQuestions = new ArrayList<>();
         String[] questions = generatedContent.split("\n\n"); // 문제별로 구분
-        for (String questionText : questions) {
+
+        // 문제의 수가 totalQuestions를 넘지 않도록 제한
+        int questionsToAdd = Math.min(questions.length, totalQuestions);
+
+        for (int i = 0; i < questionsToAdd; i++) {
+            String questionText = questions[i];
+
             QuizQuestion quizQuestion = new QuizQuestion();
             quizQuestion.setQuestionContent(extractQuestion(questionText));
             quizQuestion.setQuestionType(determineQuestionType(questionText));
