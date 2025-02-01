@@ -102,17 +102,23 @@ public class OpenAIService {
 
 
 
+    // 질문을 추출하는 메서드
     private String extractQuestion(String questionText) {
+        // 질문이 "문제:"로 시작한다고 가정하고, 그 뒤에 실제 질문 내용이 온다고 가정
         int startIdx = questionText.indexOf("문제: ") + "문제: ".length();
         int endIdx = questionText.indexOf("\n", startIdx);
-        return questionText.substring(startIdx, endIdx != -1 ? endIdx : questionText.length()).trim();
+        if (startIdx != -1 && endIdx != -1) {
+            return questionText.substring(startIdx, endIdx).trim();
+        }
+        // 질문 끝이 없으면 전체 텍스트를 질문으로 취급
+        return questionText.substring(startIdx).trim();
     }
 
     // 선택지를 추출하는 메서드
     private List<QuizChoice> extractChoices(String questionText) {
         List<QuizChoice> choices = new ArrayList<>();
+        // 문제 텍스트에서 선택지 부분만 추출
         String[] lines = questionText.split("\n");
-
         for (String line : lines) {
             if (line.matches("^[A-D]\\).*")) { // A), B), C), D)로 시작하는지 확인
                 QuizChoice choice = new QuizChoice();
@@ -123,18 +129,28 @@ public class OpenAIService {
         return choices;
     }
 
+    // 정답을 추출하는 메서드
     private String extractAnswer(String questionText) {
+        // 정답 부분을 추출
         int startIdx = questionText.indexOf("정답: ") + "정답: ".length();
         int endIdx = questionText.indexOf("\n", startIdx);
-        return questionText.substring(startIdx, endIdx != -1 ? endIdx : questionText.length()).trim();
+        if (startIdx != -1 && endIdx != -1) {
+            return questionText.substring(startIdx, endIdx).trim();
+        }
+        // 정답이 없으면 빈 문자열 반환
+        return "";
     }
 
+    // 해설을 추출하는 메서드
     private String extractExplanation(String questionText) {
         int startIdx = questionText.indexOf("해설: ") + "해설: ".length();
-        return startIdx >= "해설: ".length() ? questionText.substring(startIdx).trim() : "";
+        if (startIdx >= "해설: ".length()) {
+            return questionText.substring(startIdx).trim();
+        }
+        return ""; // 해설이 없으면 빈 문자열 반환
     }
 
-    // 질문 유형을 판단하는 메서드
+    // 문제 유형을 판단하는 메서드
     private QuestionType determineQuestionType(String questionText) {
         if (questionText.contains("A)") || questionText.contains("B)") || questionText.contains("C)") || questionText.contains("D)")) {
             return QuestionType.MULTIPLE_CHOICE;
@@ -144,6 +160,7 @@ public class OpenAIService {
             return QuestionType.SUBJECTIVE;
         }
     }
+
 
 
 
