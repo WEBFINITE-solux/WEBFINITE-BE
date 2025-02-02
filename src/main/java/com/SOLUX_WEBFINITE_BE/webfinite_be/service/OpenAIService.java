@@ -16,9 +16,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.MediaType;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 public class OpenAIService {
@@ -27,30 +27,22 @@ public class OpenAIService {
     private final String openAIModel; // 모델 이름을 저장할 변수
     private final QuizService quizService;
 
-    // 생성자에서 모델 이름을 받아옵니다
     public OpenAIService(RestTemplate restTemplate, @Value("${openai.model}") String openAIModel, @Lazy QuizService quizService) {
         this.restTemplate = restTemplate;
-        this.openAIModel = openAIModel; // 모델 이름 초기화
+        this.openAIModel = openAIModel;
         this.quizService = quizService;
     }
 
-    //0124수정
     public List<QuizQuestion> generateQuizQuestions(CourseFile courseFile, String detailedRequirements, QuestionType questionType, int totalQuestions) {
-        // 파일에서 텍스트 추출
         String fileContent = quizService.generateFileContent(courseFile);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
-        // 프롬프트 생성 (totalQuestions 추가)
         String prompt = generatePrompt(questionType, totalQuestions);
 
-        // PDF 텍스트와 요구사항 결합
-        String combinedContent = fileContent + "\n\n" +
-                "Detailed Requirements: " + detailedRequirements + "\n\n" +
-                prompt;
+        String combinedContent = fileContent + "\n\n" + "Detailed Requirements: " + detailedRequirements + "\n\n" + prompt;
 
-        // OpenAI API 요청 및 응답 처리
         JSONObject requestBody = new JSONObject();
         requestBody.put("model", openAIModel);
         requestBody.put("messages", new JSONArray(Arrays.asList(
@@ -64,149 +56,135 @@ public class OpenAIService {
                 String.class
         );
 
-        JSONObject jsonResponse = new JSONObject(response.getBody());
-        String generatedContent = jsonResponse.getJSONArray("choices")
-                .getJSONObject(0)
-                .getJSONObject("message")
-                .getString("content");
+        String responseBody = response.getBody();
 
-        // 질문 파싱
-        List<QuizQuestion> quizQuestions = new ArrayList<>();
-        String[] questions = generatedContent.split("\n\n"); // 문제별로 구분
+        //테스트 해 볼 부분
+        // OpenAI 응답 본문 출력
+        System.out.println("OpenAI 응답 본문: " + responseBody);  // 여기서 응답 본문 출력
 
-        // 문제의 수가 totalQuestions를 넘지 않도록 제한
-        int questionsToAdd = Math.min(questions.length, totalQuestions);
+        if (responseBody == null || responseBody.isBlank()) {
+            throw new RuntimeException("OpenAI API 응답이 비어 있습니다.");
+        }
 
-        for (int i = 0; i < questionsToAdd; i++) {
-            String questionText = questions[i];
+        try {
+            JSONObject jsonResponse = new JSONObject(responseBody);
+            String generatedContent = jsonResponse.getJSONArray("choices")
+                    .getJSONObject(0)
+                    .getJSONObject("message")
+                    .getString("content");
 
-            QuizQuestion quizQuestion = new QuizQuestion();
-            quizQuestion.setQuestionContent(extractQuestion(questionText));
-            quizQuestion.setQuestionType(determineQuestionType(questionText));
-            quizQuestion.setAnswer(extractAnswer(questionText));
-            quizQuestion.setExplanation(extractExplanation(questionText));
-
-            // 객관식 및 참/거짓 문제의 경우 선택지 설정
-            if (quizQuestion.getQuestionType() != QuestionType.SUBJECTIVE) {
-                List<QuizChoice> choices = extractChoices(questionText);
-                choices.forEach(quizQuestion::addQuizChoice);
+            //json 형식 응답 변동성 고려
+            if (generatedContent.startsWith("```json")) {
+                generatedContent = generatedContent.replaceAll("```json", "").replaceAll("```", "").trim();
             }
 
-            quizQuestions.add(quizQuestion);
-        }
 
-        return quizQuestions;
-    }
+            JSONObject resultJson = new JSONObject(generatedContent);
+            JSONArray questionsArray = resultJson.getJSONArray("questions");
+            List<QuizQuestion> quizQuestions = new ArrayList<>();
 
+            int questionsToAdd = Math.min(questionsArray.length(), totalQuestions);
 
+            for (int i = 0; i < questionsToAdd; i++) {
+                JSONObject qObj = questionsArray.getJSONObject(i);
+                QuizQuestion quizQuestion = new QuizQuestion();
+                quizQuestion.setQuestionContent(qObj.getString("questionContent"));
 
+                if (questionType == QuestionType.MULTIPLE_CHOICE) {
+                    if (qObj.has("choices")) {
+                        JSONArray choicesArray = qObj.getJSONArray("choices");
+                        List<QuizChoice> choices = new ArrayList<>();
+                        for (int j = 0; j < choicesArray.length(); j++) {
+                            JSONObject choiceObj = choicesArray.getJSONObject(j);
+                            QuizChoice choice = new QuizChoice();
+                            choice.setChoiceContent(choiceObj.getString("choiceContent"));
+                            choice.setQuizQuestion(quizQuestion);
+                            choices.add(choice);
+                        }
+                        quizQuestion.setQuizChoices(choices);
+                    }
+                } else {
+                    quizQuestion.setQuizChoices(new ArrayList<>()); // 선택지 없음
+                }
 
-
-    // 질문을 추출하는 메서드
-    private String extractQuestion(String questionText) {
-        int startIdx = questionText.indexOf("문제: ") + "문제: ".length();
-        int endIdx = questionText.indexOf("\n", startIdx);
-        if (startIdx != -1 && endIdx != -1) {
-            return questionText.substring(startIdx, endIdx).replace("\n", " ").trim(); // 줄 바꿈 처리
-        }
-        return questionText.substring(startIdx).replace("\n", " ").trim(); // 줄 바꿈 처리
-    }
-
-
-    // 선택지를 추출하는 메서드
-    private List<QuizChoice> extractChoices(String questionText) {
-        List<QuizChoice> choices = new ArrayList<>();
-        String[] lines = questionText.split("\n");
-        for (String line : lines) {
-            if (line.matches("^[A-D]\\).*")) {
-                QuizChoice choice = new QuizChoice();
-                choice.setChoiceContent(line.substring(2).replace("\n", " ").trim()); // 줄 바꿈 처리
-                choices.add(choice);
+                quizQuestion.setAnswer(qObj.getString("answer"));
+                quizQuestion.setExplanation(qObj.getString("explanation"));
+                quizQuestion.setQuestionType(questionType);
+                quizQuestions.add(quizQuestion);
             }
-        }
-        return choices;
-    }
 
-
-    // 정답을 추출하는 메서드
-    private String extractAnswer(String questionText) {
-        int startIdx = questionText.indexOf("정답: ") + "정답: ".length();
-        int endIdx = questionText.indexOf("\n", startIdx);
-        if (startIdx != -1 && endIdx != -1) {
-            return questionText.substring(startIdx, endIdx).replace("\n", " ").trim(); // 줄 바꿈 처리
-        }
-        return ""; // 정답이 없으면 빈 문자열 반환
-    }
-
-
-    // 해설을 추출하는 메서드
-    private String extractExplanation(String questionText) {
-        int startIdx = questionText.indexOf("해설: ") + "해설: ".length();
-        if (startIdx >= "해설: ".length()) {
-            return questionText.substring(startIdx).replace("\n", " ").trim(); // 줄 바꿈 처리
-        }
-        return ""; // 해설이 없으면 빈 문자열 반환
-    }
-
-
-    // 문제 유형을 판단하는 메서드
-    private QuestionType determineQuestionType(String questionText) {
-        if (questionText.contains("A)") || questionText.contains("B)") || questionText.contains("C)") || questionText.contains("D)")) {
-            return QuestionType.MULTIPLE_CHOICE;
-        } else if (questionText.contains("참") || questionText.contains("거짓")) {
-            return QuestionType.TRUE_FALSE;
-        } else {
-            return QuestionType.SUBJECTIVE;
+            return quizQuestions;
+        } catch (Exception e) {
+            System.err.println("응답 본문 JSON 파싱 실패: " + e.getMessage());
+            throw new RuntimeException("응답 본문 파싱 오류", e);
         }
     }
 
-
-
-
-
-
-    //0124 수정
+    //다시 고쳐본 부분
     private String generatePrompt(QuestionType questionType, int totalQuestions) {
         StringBuilder promptBuilder = new StringBuilder();
+
+        promptBuilder.append("다음 조건을 만족하는 문제를 한국어로 만들어 주세요. 출력은 반드시 아래 JSON 형식만 사용하고, 추가 텍스트(예: 설명, 백틱 등)는 포함하지 말아 주세요. "
+                + "questionType에 맞게 문제를 생성할 때 모든 문제는 동일한 questionType이어야 합니다.\n");
+
+        switch (questionType) {
+            case MULTIPLE_CHOICE:
+                promptBuilder.append("questionType이 MULTIPLE_CHOICE인 경우 선택지를 포함한 문제를 작성해주세요.\n");
+                break;
+            case TRUE_FALSE:
+                promptBuilder.append("questionType이 TRUE_FALSE인 경우 문제는 참/거짓만 포함하고, 선택지는 비워두세요.\n");
+                break;
+            case SUBJECTIVE:
+                promptBuilder.append("questionType이 SUBJECTIVE인 경우 문제는 자유롭게 답을 작성하는 문제여야 하며, 선택지는 비워두세요.\n");
+                break;
+            default:
+                throw new IllegalArgumentException("지원되지 않는 문제 유형: " + questionType);
+        }
+
+        promptBuilder.append("{\n")
+                .append("  \"quizId\": <퀴즈ID>,\n")
+                .append("  \"quizTitle\": \"Quiz for [과목명] - [파일명].pdf\",\n")
+                .append("  \"courseName\": \"[과목명]\",\n")
+                .append("  \"quizType\": \"\",\n")
+                .append("  \"questions\": [\n");
+
         for (int i = 1; i <= totalQuestions; i++) {
+            promptBuilder.append("    {\n")
+                    .append("      \"questionId\": <문제ID>,\n")
+                    .append("      \"questionContent\": \"<문제 내용>\",\n");
+
             switch (questionType) {
                 case MULTIPLE_CHOICE:
-                    promptBuilder.append("한국어로 4개의 선택지를 가진 객관식 문제를 만들어 주세요. 정답과 해설도 포함해 주세요. ")
-                            .append("출력 형식은 다음과 같이 해주세요:\n")
-                            .append("문제: <문제 내용>\n")
-                            .append("A) <선택지 A>\n")
-                            .append("B) <선택지 B>\n")
-                            .append("C) <선택지 C>\n")
-                            .append("D) <선택지 D>\n")
-                            .append("정답: <정답 선택지 글자 및 내용>\n")
-                            .append("해설: <해설>\n\n");
+                    promptBuilder.append("      \"choices\": [\n")
+                            .append("         { \"choiceId\": 1, \"choiceContent\": \"<선택지 A>\" },\n")
+                            .append("         { \"choiceId\": 2, \"choiceContent\": \"<선택지 B>\" },\n")
+                            .append("         { \"choiceId\": 3, \"choiceContent\": \"<선택지 C>\" },\n")
+                            .append("         { \"choiceId\": 4, \"choiceContent\": \"<선택지 D>\" }\n")
+                            .append("      ],\n")
+                            .append("      \"answer\": \"<선택지 내용으로 정답을 입력하세요. 예: '이름 공간을 관리하기 위해'>\",\n"); // 선택지 내용으로 정답 입력
                     break;
-
                 case TRUE_FALSE:
-                    promptBuilder.append("한국어로 참/거짓 문제를 만들어 주세요. 정답과 해설도 포함해 주세요. ")
-                            .append("출력 형식은 다음과 같이 해주세요:\n")
-                            .append("문제: <문제 내용>\n")
-                            .append("참\n")
-                            .append("거짓\n")
-                            .append("정답: <정답 선택지 글자>\n")
-                            .append("해설: <해설>\n\n");
+                    promptBuilder.append("      \"choices\": [],\n")
+                            .append("      \"answer\": \"답변은 참/거짓으로 작성해주세요. 예: '참' 또는 '거짓'으로 작성해주세요.\",\n"); // TRUE_FALSE에서는 참/거짓만
                     break;
-
                 case SUBJECTIVE:
-                    promptBuilder.append("한국어로 주관식 문제를 만들어 주세요. 가능한 최적의 답안을 해설로 제공해 주세요. ")
-                            .append("출력 형식은 다음과 같이 해주세요:\n")
-                            .append("문제: <문제 내용>\n")
-                            .append("정답: <정답>\n")
-                            .append("해설: <해설>\n\n");
+                    promptBuilder.append("      \"choices\": [],\n")
+                            .append("      \"answer\": \"이름 공간을 사용하면 이름 충돌을 방지할 수 있습니다.\",\n"); //
                     break;
-
                 default:
                     throw new IllegalArgumentException("지원되지 않는 문제 유형: " + questionType);
             }
+
+            promptBuilder.append("      \"explanation\": \"<해설>\",\n")
+                    .append("      \"questionType\": \"<문제 유형>\"\n")
+                    .append("    },\n");
         }
+
+        promptBuilder.deleteCharAt(promptBuilder.length() - 2); // 마지막 쉼표 제거
+        promptBuilder.append("  ]\n")
+                .append("}\n\n");
+
         return promptBuilder.toString().trim();
     }
-
-
 
 }
