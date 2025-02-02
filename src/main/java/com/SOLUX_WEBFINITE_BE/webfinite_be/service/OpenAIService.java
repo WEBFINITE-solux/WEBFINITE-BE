@@ -155,13 +155,52 @@ public class OpenAIService {
 
             switch (questionType) {
                 case MULTIPLE_CHOICE:
-                    promptBuilder.append("      \"choices\": [\n")
-                            .append("         { \"choiceId\": 1, \"choiceContent\": \"<선택지 A>\" },\n")
-                            .append("         { \"choiceId\": 2, \"choiceContent\": \"<선택지 B>\" },\n")
-                            .append("         { \"choiceId\": 3, \"choiceContent\": \"<선택지 C>\" },\n")
-                            .append("         { \"choiceId\": 4, \"choiceContent\": \"<선택지 D>\" }\n")
-                            .append("      ],\n")
-                            .append("      \"answer\": \"<선택지 내용으로 정답을 입력하세요. 예: '이름 공간을 관리하기 위해'>\",\n"); // 선택지 내용으로 정답 입력
+                    // 예시 선택지 목록
+                    List<String> choices = List.of(
+                            "관련 있는 클래스들을 하나의 단위로 모을 수 있다.",
+                            "이름 충돌을 방지할 수 있다.",
+                            "정확한 파일 시스템 경로로 클래스 파일을 찾을 수 있다.",
+                            "세밀한 접근 제어를 구현할 수 있다."
+                    );
+                    String correctAnswer = "정확한 파일 시스템 경로로 클래스 파일을 찾을 수 있다.";  // OpenAI에서 받은 정답
+
+                    // 정답에서 "B) "와 같은 선택지 인덱스를 제거하고, 내용만 남기기
+                    correctAnswer = correctAnswer.strip();
+                    System.out.println("정답: " + correctAnswer);
+
+                    promptBuilder.append("      \"choices\": [\n");
+                    for (int j = 0; j < choices.size(); j++) {
+                        promptBuilder.append("         { \"choiceId\": ").append(j + 1)
+                                .append(", \"choiceContent\": \"").append(choices.get(j)).append("\" }");
+                        if (j < choices.size() - 1) promptBuilder.append(",");
+                        promptBuilder.append("\n");
+                    }
+                    promptBuilder.append("      ],\n");
+
+                    // 정답이 선택지 목록에서 몇 번째인지를 찾기
+                    int correctChoiceIndex = -1;
+                    for (int j = 0; j < choices.size(); j++) {
+                        if (choices.get(j).strip().equalsIgnoreCase(correctAnswer.strip())) {
+                            correctChoiceIndex = j;
+                            break;
+                        }
+                    }
+                    System.out.println("정답 인덱스: " + correctChoiceIndex);
+
+                    // 선택지 알파벳과 괄호를 지정 (A, B, C, D)
+                    String[] choiceLabels = {"A", "B", "C", "D"};
+
+                    if (correctChoiceIndex != -1) {
+                        // 알파벳과 괄호를 함께 정답을 "C) 정확한 파일 시스템 경로로 클래스 파일을 찾을 수 있다." 형태로 변환
+                        promptBuilder.append("      \"answer\": \"")
+                                .append(choiceLabels[correctChoiceIndex]).append(") ")
+                                .append(correctAnswer)
+                                .append("\",\n");
+                    } else {
+                        System.out.println("경고: 정답이 선택지 목록에서 발견되지 않음! -> 정답: " + correctAnswer);
+                        // 기본값으로 정답을 그대로 입력
+                        promptBuilder.append("      \"answer\": \"").append(correctAnswer).append("\"\n");
+                    }
                     break;
                 case TRUE_FALSE:
                     promptBuilder.append("      \"choices\": [],\n")
